@@ -699,6 +699,11 @@
                 <p class="text-2xl font-bold text-orange-500 mb-2">¥<span id="alipayQRAmount">0</span></p>
                 <p class="text-sm text-gray-400 mb-4">请在 <span id="payCountdown" class="text-red-500 font-bold">15:00</span> 内完成支付</p>
                 
+                <!-- 跳转支付按钮 -->
+                <button onclick="jumpToAlipay()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all mb-3">
+                    <i class="fas fa-external-link-alt mr-2"></i>在支付宝APP中支付
+                </button>
+                
                 <div class="flex space-x-3">
                     <button onclick="closeAlipayQRModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                         取消支付
@@ -735,6 +740,11 @@
                 
                 <p class="text-2xl font-bold text-orange-500 mb-2">¥<span id="wechatQRAmount">0</span></p>
                 <p class="text-sm text-gray-400 mb-4">请在 <span id="wechatPayCountdown" class="text-red-500 font-bold">15:00</span> 内完成支付</p>
+                
+                <!-- 跳转支付按钮 -->
+                <button onclick="jumpToWechatPay()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition-all mb-3">
+                    <i class="fas fa-external-link-alt mr-2"></i>在微信中支付
+                </button>
                 
                 <div class="flex space-x-3">
                     <button onclick="closeWechatQRModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
@@ -868,6 +878,11 @@
                     <span class="text-sm text-gray-400">支付剩余时间：</span>
                     <span id="xunhupayCountdown" class="text-red-500 font-bold">15:00</span>
                 </div>
+                
+                <!-- 跳转支付按钮 -->
+                <button onclick="jumpToXunhupay()" class="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 text-white py-3 rounded-lg font-medium hover:from-cyan-600 hover:to-cyan-700 transition-all mb-3">
+                    <i class="fas fa-external-link-alt mr-2"></i>跳转到虎皮椒支付
+                </button>
                 
                 <!-- 操作按钮 -->
                 <div class="flex space-x-3">
@@ -1939,12 +1954,13 @@
             }
             document.getElementById('contactError').classList.add('hidden');
             
-            // 处理图片
-            let productImage = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop';
+            // 验证图片（必须上传至少一张）
             const imagePreview = document.querySelector('#imagePreviewContainer img');
-            if (imagePreview) {
-                productImage = imagePreview.src;
+            if (!imagePreview) {
+                showToast('请上传至少一张商品图片');
+                return;
             }
+            const productImage = imagePreview.src;
             
             const newProduct = {
                 id: Date.now(),
@@ -2183,6 +2199,34 @@
             if (countdownTimer) clearInterval(countdownTimer);
         }
 
+        // 跳转支付宝支付
+        function jumpToAlipay() {
+            const amount = currentPayProduct.price;
+            const orderNo = 'DOYDS' + Date.now();
+            const subject = currentPayProduct.title;
+            
+            // 显示跳转提示
+            showToast('正在跳转支付宝支付...');
+            
+            // 模拟跳转支付宝支付页面
+            // 实际生产中需要通过后端生成支付宝支付链接
+            setTimeout(() => {
+                // 尝试打开支付宝支付页面
+                const alipayUrl = `https://d.alipay.com/i/index.htm?b=${encodeURIComponent(subject)}&a=${amount}&s=DOYDS&m=product`;
+                
+                // 打开新窗口
+                const payWindow = window.open(alipayUrl, '_blank');
+                
+                // 如果被拦截，则显示二维码
+                if (!payWindow || payWindow.closed || typeof payWindow.closed === 'undefined') {
+                    showToast('请在浏览器允许弹窗后重试，或使用扫码支付');
+                }
+                
+                // 模拟支付状态检查
+                showAlipayQRModal();
+            }, 1000);
+        }
+
         // ========== 微信扫码支付 ==========
         function showWechatQRModal() {
             document.getElementById('wechatQRAmount').textContent = currentPayProduct.price;
@@ -2195,6 +2239,23 @@
             document.getElementById('wechatQRModal').classList.add('hidden');
             document.body.style.overflow = '';
             if (countdownTimer) clearInterval(countdownTimer);
+        }
+
+        // 跳转微信支付
+        function jumpToWechatPay() {
+            const amount = currentPayProduct.price;
+            const orderNo = 'DOYDS' + Date.now();
+            
+            showToast('正在跳转微信支付...');
+            
+            // 模拟跳转微信支付页面
+            // 微信支付需要通过商户平台申请
+            setTimeout(() => {
+                // 微信扫码支付通常需要使用微信扫描二维码
+                // 这里显示二维码弹窗
+                showWechatQRModal();
+                showToast('请使用微信扫描二维码完成支付');
+            }, 1000);
         }
 
         // ========== 银行卡支付 ==========
@@ -2276,6 +2337,31 @@
                 wechatBtn.classList.add('border', 'border-gray-200');
                 typeName.textContent = '支付宝';
             }
+        }
+
+        // 跳转虎皮椒支付
+        function jumpToXunhupay() {
+            const amount = currentPayProduct.price;
+            const orderNo = 'DOYDS' + Date.now();
+            
+            showToast('正在跳转虎皮椒支付...');
+            
+            // 模拟跳转虎皮椒支付页面
+            setTimeout(() => {
+                // 虎皮椒支付官网
+                const xunhupayUrl = 'https://www.xunhupay.com';
+                
+                // 尝试打开新窗口
+                const payWindow = window.open(xunhupayUrl, '_blank');
+                
+                if (!payWindow || payWindow.closed) {
+                    showToast('请允许浏览器弹窗以便跳转支付');
+                }
+                
+                // 显示二维码供扫描
+                showXunhupayModal();
+                showToast('如未跳转，请在虎皮椒官网完成支付后点击"我已支付"');
+            }, 1000);
         }
 
         function checkXunhupayStatus() {
