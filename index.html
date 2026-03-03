@@ -501,20 +501,20 @@
         </div>
     </div>
 
-    <!-- 支付宝支付弹窗 -->
-    <div id="alipayModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeAlipayModal()"></div>
+    <!-- 统一支付弹窗 -->
+    <div id="paymentModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closePaymentModal()"></div>
         <div class="relative flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
-                <button onclick="closeAlipayModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
                 
                 <div class="text-center mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fab fa-alipay text-white text-3xl"></i>
+                    <div class="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shopping-cart text-white text-3xl"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800">支付宝支付</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">确认订单</h2>
                     <p id="payProductName" class="text-gray-500 mt-1"></p>
                 </div>
                 
@@ -528,6 +528,10 @@
                         <span class="text-gray-500">卖家</span>
                         <span id="paySellerName" class="text-gray-800"></span>
                     </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-500">商品成色</span>
+                        <span id="payCondition" class="text-gray-800"></span>
+                    </div>
                     <hr class="my-3 border-gray-200">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-800 font-bold">支付金额</span>
@@ -539,33 +543,214 @@
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-medium mb-3">选择支付方式</label>
                     <div class="space-y-2">
-                        <label class="flex items-center p-3 border-2 border-blue-500 rounded-lg cursor-pointer bg-blue-50">
+                        <!-- 支付宝 -->
+                        <label class="flex items-center p-4 border-2 border-blue-500 rounded-xl cursor-pointer bg-blue-50 transition-all hover:shadow-md payment-option" data-method="alipay" onclick="selectPaymentMethod('alipay')">
                             <input type="radio" name="payMethod" value="alipay" checked class="w-4 h-4 text-blue-600">
-                            <div class="ml-3 flex items-center">
-                                <i class="fab fa-alipay text-2xl text-blue-600 mr-2"></i>
-                                <span class="font-medium text-gray-800">支付宝</span>
+                            <div class="ml-3 flex items-center flex-1">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fab fa-alipay text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-800 block">支付宝</span>
+                                    <span class="text-xs text-gray-500">推荐使用，安全便捷</span>
+                                </div>
                             </div>
-                            <span class="ml-auto text-xs text-blue-600">推荐</span>
+                            <span class="ml-auto text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">推荐</span>
                         </label>
-                        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="radio" name="payMethod" value="balance" class="w-4 h-4 text-blue-600">
-                            <div class="ml-3 flex items-center">
-                                <i class="fas fa-wallet text-xl text-gray-600 mr-2"></i>
-                                <span class="font-medium text-gray-800">余额支付</span>
+                        
+                        <!-- 微信支付 -->
+                        <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-green-300 payment-option" data-method="wechat" onclick="selectPaymentMethod('wechat')">
+                            <input type="radio" name="payMethod" value="wechat" class="w-4 h-4 text-green-600">
+                            <div class="ml-3 flex items-center flex-1">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fab fa-weixin text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-800 block">微信支付</span>
+                                    <span class="text-xs text-gray-500">微信扫码即可支付</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- 银行卡支付 -->
+                        <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-purple-300 payment-option" data-method="bank" onclick="selectPaymentMethod('bank')">
+                            <input type="radio" name="payMethod" value="bank" class="w-4 h-4 text-purple-600">
+                            <div class="ml-3 flex items-center flex-1">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-credit-card text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-800 block">银行卡支付</span>
+                                    <span class="text-xs text-gray-500">支持各大银行储蓄卡/信用卡</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- 余额支付 -->
+                        <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-amber-300 payment-option" data-method="balance" onclick="selectPaymentMethod('balance')">
+                            <input type="radio" name="payMethod" value="balance" class="w-4 h-4 text-amber-600">
+                            <div class="ml-3 flex items-center flex-1">
+                                <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-wallet text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-800 block">余额支付</span>
+                                    <span class="text-xs text-gray-500">当前余额: ¥<span id="userBalance">0.00</span></span>
+                                </div>
                             </div>
                         </label>
                     </div>
                 </div>
                 
                 <!-- 支付按钮 -->
-                <button onclick="processAlipayPayment()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02]">
-                    <i class="fab fa-alipay mr-2 text-lg"></i> 立即支付
+                <button id="payButton" onclick="processPayment()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] flex items-center justify-center">
+                    <i class="fab fa-alipay mr-2 text-lg"></i> 
+                    <span id="payButtonText">支付宝支付</span>
+                    <span id="payButtonAmount" class="ml-2">¥0</span>
                 </button>
                 
                 <!-- 支付安全保障 -->
+                <div class="mt-4 flex items-center justify-center space-x-4 text-xs text-gray-400">
+                    <span class="flex items-center"><i class="fas fa-shield-alt mr-1 text-green-500"></i> 安全支付</span>
+                    <span class="flex items-center"><i class="fas fa-lock mr-1 text-blue-500"></i> 数据加密</span>
+                    <span class="flex items-center"><i class="fas fa-undo mr-1 text-orange-500"></i> 售后保障</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 支付宝扫码支付弹窗 -->
+    <div id="alipayQRModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeAlipayQRModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 fade-in text-center">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fab fa-alipay text-white text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">支付宝扫码支付</h2>
+                <p class="text-gray-500 mb-4">请使用支付宝扫描下方二维码</p>
+                
+                <!-- 模拟二维码 -->
+                <div class="w-48 h-48 bg-white border-4 border-blue-100 rounded-xl mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100"></div>
+                    <div class="relative z-10">
+                        <i class="fas fa-qrcode text-8xl text-blue-600"></i>
+                    </div>
+                    <div class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                        支付宝
+                    </div>
+                </div>
+                
+                <p class="text-2xl font-bold text-orange-500 mb-2">¥<span id="alipayQRAmount">0</span></p>
+                <p class="text-sm text-gray-400 mb-4">请在 <span id="payCountdown" class="text-red-500 font-bold">15:00</span> 内完成支付</p>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeAlipayQRModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        取消支付
+                    </button>
+                    <button onclick="simulatePaymentSuccess('alipay')" class="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                        我已支付
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 微信扫码支付弹窗 -->
+    <div id="wechatQRModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeWechatQRModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 fade-in text-center">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fab fa-weixin text-white text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">微信扫码支付</h2>
+                <p class="text-gray-500 mb-4">请使用微信扫描下方二维码</p>
+                
+                <!-- 模拟二维码 -->
+                <div class="w-48 h-48 bg-white border-4 border-green-100 rounded-xl mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100"></div>
+                    <div class="relative z-10">
+                        <i class="fas fa-qrcode text-8xl text-green-600"></i>
+                    </div>
+                    <div class="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                        微信支付
+                    </div>
+                </div>
+                
+                <p class="text-2xl font-bold text-orange-500 mb-2">¥<span id="wechatQRAmount">0</span></p>
+                <p class="text-sm text-gray-400 mb-4">请在 <span id="wechatPayCountdown" class="text-red-500 font-bold">15:00</span> 内完成支付</p>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeWechatQRModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        取消支付
+                    </button>
+                    <button onclick="simulatePaymentSuccess('wechat')" class="flex-1 bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                        我已支付
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 银行卡支付弹窗 -->
+    <div id="bankPayModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeBankPayModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+                <button onclick="closeBankPayModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-credit-card text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">银行卡支付</h2>
+                    <p class="text-gray-500">支付金额: <span class="text-orange-500 font-bold">¥<span id="bankPayAmount">0</span></span></p>
+                </div>
+                
+                <form onsubmit="processBankPayment(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">持卡人姓名</label>
+                        <input type="text" id="cardHolderName" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="请输入持卡人姓名">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">银行卡号</label>
+                        <input type="text" id="cardNumber" required maxlength="19"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="请输入银行卡号" oninput="formatCardNumber(this)">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2">有效期</label>
+                            <input type="text" id="cardExpiry" required maxlength="5"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="MM/YY" oninput="formatExpiry(this)">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2">CVV</label>
+                            <input type="password" id="cardCVV" required maxlength="3"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="***">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">银行预留手机号</label>
+                        <input type="tel" id="cardPhone" required maxlength="11"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="请输入手机号">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-4 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 transition-all">
+                        确认支付 ¥<span id="bankPayBtnAmount">0</span>
+                    </button>
+                </form>
+                
                 <div class="mt-4 flex items-center justify-center text-xs text-gray-400">
-                    <i class="fas fa-shield-alt mr-1"></i>
-                    <span>支付宝安全支付保障</span>
+                    <i class="fas fa-lock mr-1"></i>
+                    <span>银行级安全加密传输</span>
                 </div>
             </div>
         </div>
@@ -580,16 +765,38 @@
                     <i class="fas fa-check text-white text-4xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">支付成功</h2>
-                <p class="text-gray-500 mb-6">您的订单已支付成功，商品即将发货</p>
-                <div class="bg-green-50 rounded-lg p-4 mb-6">
-                    <p class="text-sm text-green-700">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        订单号: <span id="orderNumber"></span>
-                    </p>
+                <p class="text-gray-500 mb-4">您的订单已支付成功，商品即将发货</p>
+                
+                <!-- 支付方式图标 -->
+                <div id="successPaymentIcon" class="flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fab fa-alipay text-blue-600 text-2xl"></i>
+                    </div>
                 </div>
-                <button onclick="closePaySuccessModal()" class="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                    完成
-                </button>
+                
+                <div class="bg-green-50 rounded-lg p-4 mb-6">
+                    <div class="text-sm text-green-700 mb-2">
+                        <i class="fas fa-shopping-bag mr-1"></i>
+                        商品: <span id="successProductName" class="font-medium"></span>
+                    </div>
+                    <div class="text-sm text-green-700 mb-2">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        订单号: <span id="orderNumber" class="font-medium"></span>
+                    </div>
+                    <div class="text-sm text-green-700">
+                        <i class="fas fa-credit-card mr-1"></i>
+                        支付方式: <span id="successPaymentMethod" class="font-medium"></span>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closePaySuccessModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        继续购物
+                    </button>
+                    <button onclick="viewOrder()" class="flex-1 bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                        查看订单
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -644,7 +851,12 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
-                &copy; 2026 DOYDS. All rights reserved. | 支付宝合作伙伴
+                <div class="flex items-center justify-center space-x-6 mb-4">
+                    <span class="flex items-center"><i class="fab fa-alipay text-blue-500 mr-2"></i> 支付宝</span>
+                    <span class="flex items-center"><i class="fab fa-weixin text-green-500 mr-2"></i> 微信支付</span>
+                    <span class="flex items-center"><i class="fas fa-credit-card text-purple-500 mr-2"></i> 银行卡</span>
+                </div>
+                &copy; 2026 DOYDS. All rights reserved.
             </div>
         </div>
     </footer>
@@ -1289,10 +1501,13 @@
             toggleUserDropdown();
         }
 
-        // ==================== 支付宝支付功能 ====================
+        // ==================== 支付系统（支付宝/微信/银行卡/余额） ====================
         let currentPayProduct = null;
+        let selectedPaymentMethod = 'alipay';
+        let countdownTimer = null;
 
-        function showAlipayModal(productId) {
+        // 显示支付弹窗
+        function showPaymentModal(productId) {
             currentPayProduct = products.find(p => p.id === productId);
             if (!currentUser) {
                 showToast('请先登录');
@@ -1300,34 +1515,216 @@
                 return;
             }
             
+            // 更新订单信息
             document.getElementById('payProductName').textContent = currentPayProduct.title;
             document.getElementById('payProductTitle').textContent = currentPayProduct.title;
             document.getElementById('paySellerName').textContent = currentPayProduct.seller;
+            document.getElementById('payCondition').textContent = currentPayProduct.condition;
             document.getElementById('payAmount').textContent = '¥' + currentPayProduct.price;
+            document.getElementById('payButtonAmount').textContent = '¥' + currentPayProduct.price;
             
-            document.getElementById('alipayModal').classList.remove('hidden');
+            // 更新用户余额（模拟）
+            document.getElementById('userBalance').textContent = '128.50';
+            
+            // 默认选中支付宝
+            selectPaymentMethod('alipay');
+            
+            document.getElementById('paymentModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
-        function closeAlipayModal() {
-            document.getElementById('alipayModal').classList.add('hidden');
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
             document.body.style.overflow = '';
             currentPayProduct = null;
         }
 
-        function processAlipayPayment() {
-            if (!currentPayProduct) return;
+        // 选择支付方式
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // 更新UI
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                const m = opt.dataset.method;
+                if (m === method) {
+                    opt.classList.add('border-2');
+                    opt.classList.remove('border');
+                    if (m === 'alipay') {
+                        opt.classList.add('border-blue-500', 'bg-blue-50');
+                        opt.classList.remove('border-gray-200');
+                    } else if (m === 'wechat') {
+                        opt.classList.add('border-green-500', 'bg-green-50');
+                        opt.classList.remove('border-gray-200');
+                    } else if (m === 'bank') {
+                        opt.classList.add('border-purple-500', 'bg-purple-50');
+                        opt.classList.remove('border-gray-200');
+                    } else if (m === 'balance') {
+                        opt.classList.add('border-amber-500', 'bg-amber-50');
+                        opt.classList.remove('border-gray-200');
+                    }
+                } else {
+                    opt.classList.remove('border-2', 'border-blue-500', 'border-green-500', 'border-purple-500', 'border-amber-500', 'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-amber-50');
+                    opt.classList.add('border', 'border-gray-200');
+                }
+            });
+            
+            // 更新支付按钮
+            const payButton = document.getElementById('payButton');
+            const payButtonText = document.getElementById('payButtonText');
+            
+            if (method === 'alipay') {
+                payButton.className = 'w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] flex items-center justify-center';
+                payButtonText.textContent = '支付宝支付';
+            } else if (method === 'wechat') {
+                payButton.className = 'w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.02] flex items-center justify-center';
+                payButtonText.textContent = '微信支付';
+            } else if (method === 'bank') {
+                payButton.className = 'w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-4 rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.02] flex items-center justify-center';
+                payButtonText.textContent = '银行卡支付';
+            } else if (method === 'balance') {
+                payButton.className = 'w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 rounded-xl font-medium hover:from-amber-600 hover:to-amber-700 transition-all transform hover:scale-[1.02] flex items-center justify-center';
+                payButtonText.textContent = '余额支付';
+            }
+        }
 
-            // 模拟支付宝支付流程
-            const payMethod = document.querySelector('input[name="payMethod"]:checked').value;
+        // 处理支付
+        function processPayment() {
+            if (!currentPayProduct) return;
+            
+            if (selectedPaymentMethod === 'alipay') {
+                closePaymentModal();
+                showAlipayQRModal();
+            } else if (selectedPaymentMethod === 'wechat') {
+                closePaymentModal();
+                showWechatQRModal();
+            } else if (selectedPaymentMethod === 'bank') {
+                closePaymentModal();
+                showBankPayModal();
+            } else if (selectedPaymentMethod === 'balance') {
+                processBalancePayment();
+            }
+        }
+
+        // ========== 支付宝扫码支付 ==========
+        function showAlipayQRModal() {
+            document.getElementById('alipayQRAmount').textContent = currentPayProduct.price;
+            document.getElementById('alipayQRModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            startCountdown('payCountdown');
+        }
+
+        function closeAlipayQRModal() {
+            document.getElementById('alipayQRModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            if (countdownTimer) clearInterval(countdownTimer);
+        }
+
+        // ========== 微信扫码支付 ==========
+        function showWechatQRModal() {
+            document.getElementById('wechatQRAmount').textContent = currentPayProduct.price;
+            document.getElementById('wechatQRModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            startCountdown('wechatPayCountdown');
+        }
+
+        function closeWechatQRModal() {
+            document.getElementById('wechatQRModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            if (countdownTimer) clearInterval(countdownTimer);
+        }
+
+        // ========== 银行卡支付 ==========
+        function showBankPayModal() {
+            document.getElementById('bankPayAmount').textContent = currentPayProduct.price;
+            document.getElementById('bankPayBtnAmount').textContent = currentPayProduct.price;
+            document.getElementById('bankPayModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBankPayModal() {
+            document.getElementById('bankPayModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            // 清空表单
+            document.getElementById('cardHolderName').value = '';
+            document.getElementById('cardNumber').value = '';
+            document.getElementById('cardExpiry').value = '';
+            document.getElementById('cardCVV').value = '';
+            document.getElementById('cardPhone').value = '';
+        }
+
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+            input.value = formatted;
+        }
+
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+            input.value = value;
+        }
+
+        function processBankPayment(event) {
+            event.preventDefault();
+            showToast('正在处理银行卡支付...');
+            
+            // 模拟支付处理
+            setTimeout(() => {
+                simulatePaymentSuccess('bank');
+            }, 1500);
+        }
+
+        // ========== 余额支付 ==========
+        function processBalancePayment() {
+            const balance = 128.50;
+            if (currentPayProduct.price > balance) {
+                showToast('余额不足，请选择其他支付方式');
+                return;
+            }
+            
+            showToast('正在处理余额支付...');
+            setTimeout(() => {
+                simulatePaymentSuccess('balance');
+            }, 1000);
+        }
+
+        // ========== 支付成功处理 ==========
+        function simulatePaymentSuccess(method) {
             const orderNumber = 'DOYDS' + Date.now();
+            const methodNames = {
+                'alipay': '支付宝',
+                'wechat': '微信支付',
+                'bank': '银行卡',
+                'balance': '余额支付'
+            };
             
-            // 显示支付成功弹窗
+            // 关闭所有支付弹窗
+            closeAlipayQRModal();
+            closeWechatQRModal();
+            closeBankPayModal();
+            closePaymentModal();
+            
+            // 更新成功弹窗信息
             document.getElementById('orderNumber').textContent = orderNumber;
-            closeAlipayModal();
-            document.getElementById('paySuccessModal').classList.remove('hidden');
+            document.getElementById('successProductName').textContent = currentPayProduct.title;
+            document.getElementById('successPaymentMethod').textContent = methodNames[method];
             
-            // 模拟发送通知给卖家
+            // 更新支付方式图标
+            const iconContainer = document.getElementById('successPaymentIcon');
+            const icons = {
+                'alipay': '<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><i class="fab fa-alipay text-blue-600 text-2xl"></i></div>',
+                'wechat': '<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"><i class="fab fa-weixin text-green-600 text-2xl"></i></div>',
+                'bank': '<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-credit-card text-purple-600 text-2xl"></i></div>',
+                'balance': '<div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center"><i class="fas fa-wallet text-amber-600 text-2xl"></i></div>'
+            };
+            iconContainer.innerHTML = icons[method];
+            
+            // 显示成功弹窗
+            document.getElementById('paySuccessModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
             showToast('支付成功！订单号: ' + orderNumber);
         }
 
@@ -1335,6 +1732,45 @@
             document.getElementById('paySuccessModal').classList.add('hidden');
             document.body.style.overflow = '';
             currentPayProduct = null;
+        }
+
+        function viewOrder() {
+            closePaySuccessModal();
+            showToast('订单详情功能开发中...');
+        }
+
+        // 倒计时
+        function startCountdown(elementId) {
+            let minutes = 15;
+            let seconds = 0;
+            
+            if (countdownTimer) clearInterval(countdownTimer);
+            
+            countdownTimer = setInterval(() => {
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        clearInterval(countdownTimer);
+                        showToast('支付超时，请重新下单');
+                        closeAlipayQRModal();
+                        closeWechatQRModal();
+                        return;
+                    }
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                
+                const countdown = document.getElementById(elementId);
+                if (countdown) {
+                    countdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // 兼容旧函数名
+        function showAlipayModal(productId) {
+            showPaymentModal(productId);
         }
     </script>
 </body>
