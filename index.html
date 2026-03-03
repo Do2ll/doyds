@@ -574,37 +574,22 @@
                         </div>
                     </div>
                     
-                    <!-- 支付方式 - 横向排列 -->
+                    <!-- 支付方式 - 仅虎皮椒 -->
                     <div>
                         <label class="block text-gray-700 text-sm font-medium mb-2">支付方式</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <!-- 支付宝 -->
-                            <label onclick="selectPaymentMethod('alipay')" class="payment-option cursor-pointer" data-method="alipay">
-                                <input type="radio" name="payMethod" value="alipay" checked class="hidden">
-                                <div class="p-3 border-2 border-blue-500 bg-blue-50 rounded-xl text-center transition-all">
-                                    <i class="fab fa-alipay text-2xl text-blue-600 mb-1"></i>
-                                    <p class="text-xs font-medium text-gray-800">支付宝</p>
+                        <label onclick="selectPaymentMethod('xunhupay')" class="payment-option cursor-pointer block" data-method="xunhupay">
+                            <input type="radio" name="payMethod" value="xunhupay" checked class="hidden">
+                            <div class="p-4 border-2 border-cyan-500 bg-cyan-50 rounded-xl flex items-center transition-all">
+                                <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-qrcode text-white text-2xl"></i>
                                 </div>
-                            </label>
-                            
-                            <!-- 微信支付 -->
-                            <label onclick="selectPaymentMethod('wechat')" class="payment-option cursor-pointer" data-method="wechat">
-                                <input type="radio" name="payMethod" value="wechat" class="hidden">
-                                <div class="p-3 border-2 border-gray-200 rounded-xl text-center transition-all hover:border-green-300">
-                                    <i class="fab fa-weixin text-2xl text-green-600 mb-1"></i>
-                                    <p class="text-xs font-medium text-gray-800">微信</p>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-800">虎皮椒支付</p>
+                                    <p class="text-xs text-gray-500">支持微信/支付宝扫码，个人可用</p>
                                 </div>
-                            </label>
-                            
-                            <!-- 虎皮椒 -->
-                            <label onclick="selectPaymentMethod('xunhupay')" class="payment-option cursor-pointer" data-method="xunhupay">
-                                <input type="radio" name="payMethod" value="xunhupay" class="hidden">
-                                <div class="p-3 border-2 border-gray-200 rounded-xl text-center transition-all hover:border-cyan-300">
-                                    <i class="fas fa-qrcode text-2xl text-cyan-600 mb-1"></i>
-                                    <p class="text-xs font-medium text-gray-800">虎皮椒</p>
-                                </div>
-                            </label>
-                        </div>
+                                <span class="text-xs text-cyan-600 bg-cyan-100 px-2 py-1 rounded-full">推荐</span>
+                            </div>
+                        </label>
                     </div>
                     
                     <!-- 收货地址 - 简化 -->
@@ -638,157 +623,10 @@
                 
                 <!-- 底部支付按钮 -->
                 <div class="sticky bottom-0 bg-white pt-2 pb-4 px-4 border-t border-gray-100">
-                    <button id="payButton" onclick="processPayment()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center">
-                        <span id="payButtonText">支付宝支付</span>
+                    <button id="payButton" onclick="processPayment()" class="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 text-white py-3 rounded-xl font-medium hover:from-cyan-600 hover:to-cyan-700 transition-all flex items-center justify-center">
+                        <span id="payButtonText">虎皮椒支付</span>
                         <span id="payButtonAmount" class="ml-2 font-bold">¥0</span>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 支付宝扫码支付弹窗 -->
-    <div id="alipayQRModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeAlipayQRModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 fade-in text-center">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fab fa-alipay text-white text-3xl"></i>
-                </div>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">支付宝扫码支付</h2>
-                <p class="text-gray-500 mb-4">请使用支付宝扫描下方二维码</p>
-                
-                <!-- 模拟二维码 -->
-                <div class="w-48 h-48 bg-white border-4 border-blue-100 rounded-xl mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100"></div>
-                    <div class="relative z-10">
-                        <i class="fas fa-qrcode text-8xl text-blue-600"></i>
-                    </div>
-                    <div class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                        支付宝
-                    </div>
-                </div>
-                
-                <p class="text-2xl font-bold text-orange-500 mb-2">¥<span id="alipayQRAmount">0</span></p>
-                <p class="text-sm text-gray-400 mb-4">请在 <span id="payCountdown" class="text-red-500 font-bold">15:00</span> 内完成支付</p>
-                
-                <!-- 跳转支付按钮 -->
-                <button onclick="jumpToAlipay()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all mb-3">
-                    <i class="fas fa-external-link-alt mr-2"></i>在支付宝APP中支付
-                </button>
-                
-                <div class="flex space-x-3">
-                    <button onclick="closeAlipayQRModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                        取消支付
-                    </button>
-                    <button onclick="simulatePaymentSuccess('alipay')" class="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
-                        我已支付
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 微信扫码支付弹窗 -->
-    <div id="wechatQRModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeWechatQRModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 fade-in text-center">
-                <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fab fa-weixin text-white text-3xl"></i>
-                </div>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">微信扫码支付</h2>
-                <p class="text-gray-500 mb-4">请使用微信扫描下方二维码</p>
-                
-                <!-- 模拟二维码 -->
-                <div class="w-48 h-48 bg-white border-4 border-green-100 rounded-xl mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100"></div>
-                    <div class="relative z-10">
-                        <i class="fas fa-qrcode text-8xl text-green-600"></i>
-                    </div>
-                    <div class="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                        微信支付
-                    </div>
-                </div>
-                
-                <p class="text-2xl font-bold text-orange-500 mb-2">¥<span id="wechatQRAmount">0</span></p>
-                <p class="text-sm text-gray-400 mb-4">请在 <span id="wechatPayCountdown" class="text-red-500 font-bold">15:00</span> 内完成支付</p>
-                
-                <!-- 跳转支付按钮 -->
-                <button onclick="jumpToWechatPay()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition-all mb-3">
-                    <i class="fas fa-external-link-alt mr-2"></i>在微信中支付
-                </button>
-                
-                <div class="flex space-x-3">
-                    <button onclick="closeWechatQRModal()" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                        取消支付
-                    </button>
-                    <button onclick="simulatePaymentSuccess('wechat')" class="flex-1 bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                        我已支付
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 银行卡支付弹窗 -->
-    <div id="bankPayModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeBankPayModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
-                <button onclick="closeBankPayModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-                
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-credit-card text-white text-2xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-800">银行卡支付</h2>
-                    <p class="text-gray-500">支付金额: <span class="text-orange-500 font-bold">¥<span id="bankPayAmount">0</span></span></p>
-                </div>
-                
-                <form onsubmit="processBankPayment(event)">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2">持卡人姓名</label>
-                        <input type="text" id="cardHolderName" required
-                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="请输入持卡人姓名">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2">银行卡号</label>
-                        <input type="text" id="cardNumber" required maxlength="19"
-                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="请输入银行卡号" oninput="formatCardNumber(this)">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2">有效期</label>
-                            <input type="text" id="cardExpiry" required maxlength="5"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="MM/YY" oninput="formatExpiry(this)">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2">CVV</label>
-                            <input type="password" id="cardCVV" required maxlength="3"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="***">
-                        </div>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-medium mb-2">银行预留手机号</label>
-                        <input type="tel" id="cardPhone" required maxlength="11"
-                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="请输入手机号">
-                    </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-4 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 transition-all">
-                        确认支付 ¥<span id="bankPayBtnAmount">0</span>
-                    </button>
-                </form>
-                
-                <div class="mt-4 flex items-center justify-center text-xs text-gray-400">
-                    <i class="fas fa-lock mr-1"></i>
-                    <span>银行级安全加密传输</span>
                 </div>
             </div>
         </div>
@@ -1355,8 +1193,10 @@
             }
         ];
 
-        // 初始化（不加载测试商品）
+        // 初始化（清理缓存，不加载测试商品）
         document.addEventListener('DOMContentLoaded', () => {
+            // 清理localStorage中可能存在的测试商品缓存
+            localStorage.removeItem('products');
             renderCategoryGrid();
             renderProducts();
             updateFavoritesCount();
@@ -2177,7 +2017,7 @@
 
         // ==================== 支付系统（支付宝/微信/银行卡/余额） ====================
         let currentPayProduct = null;
-        let selectedPaymentMethod = 'alipay';
+        let selectedPaymentMethod = 'xunhupay';
         let countdownTimer = null;
 
         // 显示支付弹窗
@@ -2205,7 +2045,7 @@
             document.getElementById('userBalance').textContent = '128.50';
             
             // 默认选中支付宝
-            selectPaymentMethod('alipay');
+            selectPaymentMethod('xunhupay');
             
             document.getElementById('paymentModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -2217,25 +2057,10 @@
             currentPayProduct = null;
         }
 
-        // 选择支付方式
+        // 选择支付方式（仅虎皮椒）
         function selectPaymentMethod(method) {
-            selectedPaymentMethod = method;
-            
-            // 更新UI - 网格布局
-            document.querySelectorAll('#paymentModal .payment-option').forEach(opt => {
-                const m = opt.dataset.method;
-                const div = opt.querySelector('div');
-                if (m === method) {
-                    div.className = `p-3 border-2 rounded-xl text-center transition-all`;
-                    if (m === 'alipay') {
-                        div.classList.add('border-blue-500', 'bg-blue-50');
-                    } else if (m === 'wechat') {
-                        div.classList.add('border-green-500', 'bg-green-50');
-                    } else if (m === 'xunhupay') {
-                        div.classList.add('border-cyan-500', 'bg-cyan-50');
-                    }
-                } else {
-                    div.className = 'p-3 border-2 border-gray-200 rounded-xl text-center transition-all hover:border-gray-300';
+            selectedPaymentMethod = 'xunhupay'; // 始终使用虎皮椒支付
+        }
                 }
             });
             
@@ -2299,23 +2124,9 @@
             };
             currentPayProduct.shippingAddress = shippingAddress;
             
-            if (selectedPaymentMethod === 'alipay') {
-                closePaymentModal();
-                showAlipayQRModal();
-            } else if (selectedPaymentMethod === 'wechat') {
-                closePaymentModal();
-                showWechatQRModal();
-            } else if (selectedPaymentMethod === 'bank') {
-                closePaymentModal();
-                showBankPayModal();
-            } else if (selectedPaymentMethod === 'balance') {
-                processBalancePayment();
-            } else if (selectedPaymentMethod === 'xunhupay') {
-                closePaymentModal();
-                showXunhupayModal();
-            } else {
-                showToast('请选择支付方式');
-            }
+            // 使用虎皮椒支付
+            closePaymentModal();
+            showXunhupayModal();
         }
 
         // 省市区数据
@@ -2396,123 +2207,7 @@
             initAddressSelect();
         });
 
-        // ========== 支付宝扫码支付 ==========
-        function showAlipayQRModal() {
-            document.getElementById('alipayQRAmount').textContent = currentPayProduct.price;
-            document.getElementById('alipayQRModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            startCountdown('payCountdown');
-        }
-
-        function closeAlipayQRModal() {
-            document.getElementById('alipayQRModal').classList.add('hidden');
-            document.body.style.overflow = '';
-            if (countdownTimer) clearInterval(countdownTimer);
-        }
-
-        // 跳转支付宝支付
-        function jumpToAlipay() {
-            const amount = currentPayProduct.price;
-            const orderNo = 'DOYDS' + Date.now();
-            const subject = currentPayProduct.title;
-            
-            // 显示跳转提示
-            showToast('正在跳转支付宝支付...');
-            
-            // 模拟跳转支付宝支付页面
-            // 实际生产中需要通过后端生成支付宝支付链接
-            setTimeout(() => {
-                // 尝试打开支付宝支付页面
-                const alipayUrl = `https://d.alipay.com/i/index.htm?b=${encodeURIComponent(subject)}&a=${amount}&s=DOYDS&m=product`;
-                
-                // 打开新窗口
-                const payWindow = window.open(alipayUrl, '_blank');
-                
-                // 如果被拦截，则显示二维码
-                if (!payWindow || payWindow.closed || typeof payWindow.closed === 'undefined') {
-                    showToast('请在浏览器允许弹窗后重试，或使用扫码支付');
-                }
-                
-                // 模拟支付状态检查
-                showAlipayQRModal();
-            }, 1000);
-        }
-
-        // ========== 微信扫码支付 ==========
-        function showWechatQRModal() {
-            document.getElementById('wechatQRAmount').textContent = currentPayProduct.price;
-            document.getElementById('wechatQRModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            startCountdown('wechatPayCountdown');
-        }
-
-        function closeWechatQRModal() {
-            document.getElementById('wechatQRModal').classList.add('hidden');
-            document.body.style.overflow = '';
-            if (countdownTimer) clearInterval(countdownTimer);
-        }
-
-        // 跳转微信支付
-        function jumpToWechatPay() {
-            const amount = currentPayProduct.price;
-            const orderNo = 'DOYDS' + Date.now();
-            
-            showToast('正在跳转微信支付...');
-            
-            // 模拟跳转微信支付页面
-            // 微信支付需要通过商户平台申请
-            setTimeout(() => {
-                // 微信扫码支付通常需要使用微信扫描二维码
-                // 这里显示二维码弹窗
-                showWechatQRModal();
-                showToast('请使用微信扫描二维码完成支付');
-            }, 1000);
-        }
-
-        // ========== 银行卡支付 ==========
-        function showBankPayModal() {
-            document.getElementById('bankPayAmount').textContent = currentPayProduct.price;
-            document.getElementById('bankPayBtnAmount').textContent = currentPayProduct.price;
-            document.getElementById('bankPayModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeBankPayModal() {
-            document.getElementById('bankPayModal').classList.add('hidden');
-            document.body.style.overflow = '';
-            // 清空表单
-            document.getElementById('cardHolderName').value = '';
-            document.getElementById('cardNumber').value = '';
-            document.getElementById('cardExpiry').value = '';
-            document.getElementById('cardCVV').value = '';
-            document.getElementById('cardPhone').value = '';
-        }
-
-        function formatCardNumber(input) {
-            let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
-            let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
-            input.value = formatted;
-        }
-
-        function formatExpiry(input) {
-            let value = input.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2);
-            }
-            input.value = value;
-        }
-
-        function processBankPayment(event) {
-            event.preventDefault();
-            showToast('正在处理银行卡支付...');
-            
-            // 模拟支付处理
-            setTimeout(() => {
-                simulatePaymentSuccess('bank');
-            }, 1500);
-        }
-
-        // ========== 虎皮椒支付（个人可用） ==========
+        // ========== 虎皮椒支付（唯一支付方式） ==========
         let xunhupayType = 'wechat'; // 默认微信支付
 
         function showXunhupayModal() {
@@ -2581,7 +2276,7 @@
             // 模拟检查支付状态
             setTimeout(() => {
                 // 模拟支付成功
-                simulatePaymentSuccess('xunhupay');
+                simulatePaymentSuccess();
             }, 1500);
         }
 
@@ -2610,53 +2305,22 @@
             }, 1000);
         }
 
-        // ========== 余额支付 ==========
-        function processBalancePayment() {
-            const balance = 128.50;
-            if (currentPayProduct.price > balance) {
-                showToast('余额不足，请选择其他支付方式');
-                return;
-            }
-            
-            showToast('正在处理余额支付...');
-            setTimeout(() => {
-                simulatePaymentSuccess('balance');
-            }, 1000);
-        }
-
         // ========== 支付成功处理 ==========
-        function simulatePaymentSuccess(method) {
+        function simulatePaymentSuccess() {
             const orderNumber = 'DOYDS' + Date.now();
-            const methodNames = {
-                'alipay': '支付宝',
-                'wechat': '微信支付',
-                'bank': '银行卡',
-                'balance': '余额支付',
-                'xunhupay': '虎皮椒支付'
-            };
             
-            // 关闭所有支付弹窗
-            closeAlipayQRModal();
-            closeWechatQRModal();
-            closeBankPayModal();
+            // 关闭支付弹窗
             closeXunhupayModal();
             closePaymentModal();
             
             // 更新成功弹窗信息
             document.getElementById('orderNumber').textContent = orderNumber;
             document.getElementById('successProductName').textContent = currentPayProduct.title;
-            document.getElementById('successPaymentMethod').textContent = methodNames[method];
+            document.getElementById('successPaymentMethod').textContent = '虎皮椒支付';
             
             // 更新支付方式图标
             const iconContainer = document.getElementById('successPaymentIcon');
-            const icons = {
-                'alipay': '<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><i class="fab fa-alipay text-blue-600 text-2xl"></i></div>',
-                'wechat': '<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"><i class="fab fa-weixin text-green-600 text-2xl"></i></div>',
-                'bank': '<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-credit-card text-purple-600 text-2xl"></i></div>',
-                'balance': '<div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center"><i class="fas fa-wallet text-amber-600 text-2xl"></i></div>',
-                'xunhupay': '<div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center"><i class="fas fa-qrcode text-cyan-600 text-2xl"></i></div>'
-            };
-            iconContainer.innerHTML = icons[method];
+            iconContainer.innerHTML = '<div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center"><i class="fas fa-qrcode text-cyan-600 text-2xl"></i></div>';
             
             // 显示成功弹窗
             document.getElementById('paySuccessModal').classList.remove('hidden');
@@ -3303,45 +2967,6 @@
         }
 
         // 修改支付成功后的处理，添加订单
-        function simulatePaymentSuccess(method) {
-            const orderNumber = 'DOYDS' + Date.now();
-            const methodNames = {
-                'alipay': '支付宝',
-                'wechat': '微信支付',
-                'bank': '银行卡',
-                'balance': '余额支付'
-            };
-            
-            // 添加订单
-            const order = addOrder(currentPayProduct, method);
-            
-            // 关闭所有支付弹窗
-            closeAlipayQRModal();
-            closeWechatQRModal();
-            closeBankPayModal();
-            closePaymentModal();
-            
-            // 更新成功弹窗信息
-            document.getElementById('orderNumber').textContent = order.id;
-            document.getElementById('successProductName').textContent = currentPayProduct.title;
-            document.getElementById('successPaymentMethod').textContent = methodNames[method];
-            
-            // 更新支付方式图标
-            const iconContainer = document.getElementById('successPaymentIcon');
-            const icons = {
-                'alipay': '<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><i class="fab fa-alipay text-blue-600 text-2xl"></i></div>',
-                'wechat': '<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"><i class="fab fa-weixin text-green-600 text-2xl"></i></div>',
-                'bank': '<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-credit-card text-purple-600 text-2xl"></i></div>',
-                'balance': '<div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center"><i class="fas fa-wallet text-amber-600 text-2xl"></i></div>'
-            };
-            iconContainer.innerHTML = icons[method];
-            
-            // 显示成功弹窗
-            document.getElementById('paySuccessModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            
-            showToast('支付成功！订单号: ' + order.id);
-        }
     </script>
 </body>
 </html>
