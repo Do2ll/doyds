@@ -175,50 +175,43 @@
             </div>
         </div>
 
-        <!-- 筛选和排序 -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <!-- 分类标签 -->
-                <div class="flex flex-wrap gap-2" id="categoryFilters">
-                    <button onclick="filterByCategory('all')" class="category-btn active px-4 py-2 rounded-full text-sm font-medium transition-all bg-primary-500 text-white" data-category="all">
-                        全部
-                    </button>
-                    <button onclick="filterByCategory('digital')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="digital">
-                        <i class="fas fa-mobile-alt mr-1"></i> 手机数码
-                    </button>
-                    <button onclick="filterByCategory('laptop')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="laptop">
-                        <i class="fas fa-laptop mr-1"></i> 电脑办公
-                    </button>
-                    <button onclick="filterByCategory('camera')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="camera">
-                        <i class="fas fa-camera mr-1"></i> 相机单反
-                    </button>
-                    <button onclick="filterByCategory('games')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="games">
-                        <i class="fas fa-gamepad mr-1"></i> 游戏动漫
-                    </button>
-                    <button onclick="filterByCategory('books')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="books">
-                        <i class="fas fa-book mr-1"></i> 图书音像
-                    </button>
-                    <button onclick="filterByCategory('clothing')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="clothing">
-                        <i class="fas fa-tshirt mr-1"></i> 服装鞋帽
-                    </button>
-                    <button onclick="filterByCategory('beauty')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="beauty">
-                        <i class="fas fa-heart mr-1"></i> 美妆护肤
-                    </button>
-                    <button onclick="filterByCategory('furniture')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="furniture">
-                        <i class="fas fa-couch mr-1"></i> 家居家电
-                    </button>
-                    <button onclick="filterByCategory('sports')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="sports">
-                        <i class="fas fa-running mr-1"></i> 运动户外
-                    </button>
-                    <button onclick="filterByCategory('pets')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="pets">
-                        <i class="fas fa-paw mr-1"></i> 宠物用品
-                    </button>
-                    <button onclick="filterByCategory('other')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="other">
-                        <i class="fas fa-ellipsis-h mr-1"></i> 其他
-                    </button>
+        <!-- 分类导航区（闲鱼风格） -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-th-large text-amber-500 mr-2"></i>全部分类
+                    </h2>
+                    <span class="text-sm text-gray-400">点击分类查看商品</span>
                 </div>
                 
-                <!-- 排序 -->
+                <!-- 一级分类宫格 -->
+                <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4" id="categoryGrid">
+                    <!-- 分类将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 二级分类筛选（选中一级分类后显示） -->
+        <div id="subCategorySection" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+            <div class="bg-amber-50 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span id="currentCategoryTitle" class="font-medium text-gray-800"></span>
+                    <button onclick="clearCategoryFilter()" class="text-sm text-amber-600 hover:text-amber-700">
+                        <i class="fas fa-times mr-1"></i>清除筛选
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2" id="subCategoryFilters">
+                    <!-- 二级分类将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品列表区域 -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 排序栏（有商品时显示） -->
+            <div id="sortSection" class="hidden flex justify-between items-center mb-4">
+                <span id="productCount" class="text-gray-500 text-sm">共 0 件商品</span>
                 <div class="flex items-center space-x-2">
                     <span class="text-gray-500 text-sm">排序:</span>
                     <select id="sortSelect" onchange="sortProducts()" class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -228,24 +221,42 @@
                     </select>
                 </div>
             </div>
-        </div>
-
-        <!-- 商品列表 -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- 商品网格 -->
             <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <!-- 商品卡片将通过JS动态生成 -->
             </div>
             
-            <!-- 无商品提示 -->
+            <!-- 无商品提示（闲鱼风格） -->
             <div id="emptyState" class="hidden text-center py-16">
-                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-box-open text-4xl text-gray-400"></i>
+                <div class="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-box-open text-5xl text-gray-300"></i>
                 </div>
-                <h3 class="text-xl font-medium text-gray-600 mb-2">暂无商品</h3>
-                <p class="text-gray-400 mb-4">成为第一个发布商品的人吧！</p>
-                <button onclick="showPublishModal()" class="bg-primary-500 text-white px-6 py-2 rounded-full hover:bg-primary-600 transition-colors">
+                <h3 class="text-xl font-medium text-gray-600 mb-2">该分类下暂无商品</h3>
+                <p class="text-gray-400 mb-6">成为第一个发布商品的人吧！</p>
+                <button onclick="showPublishModal()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-3 rounded-full hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg">
                     <i class="fas fa-plus mr-2"></i> 发布商品
                 </button>
+            </div>
+            
+            <!-- 全站无商品提示（首页空状态） -->
+            <div id="noProductsState" class="hidden text-center py-20">
+                <div class="w-40 h-40 bg-gradient-to-br from-gray-100 to-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <div class="text-center">
+                        <i class="fas fa-store text-5xl text-gray-300 mb-2"></i>
+                        <i class="fas fa-search text-2xl text-gray-300"></i>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-medium text-gray-700 mb-3">还未有人发布商品</h3>
+                <p class="text-gray-400 mb-8 max-w-md mx-auto">DOYDS是一个全新的二手交易平台，成为第一个发布闲置商品的用户吧！</p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="showPublishModal()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-3 rounded-full hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg transform hover:scale-105">
+                        <i class="fas fa-camera mr-2"></i> 发布商品
+                    </button>
+                    <button onclick="showHowToSell()" class="border-2 border-amber-500 text-amber-600 px-8 py-3 rounded-full hover:bg-amber-50 transition-all">
+                        <i class="fas fa-question-circle mr-2"></i> 如何发布
+                    </button>
+                </div>
             </div>
         </div>
     </main>
@@ -1055,185 +1066,173 @@
     </footer>
 
     <script>
-        // 模拟商品数据 - 更新分类
-        let products = [
+        // ==================== 分类数据结构（闲鱼风格） ====================
+        const categories = [
             {
-                id: 1,
-                title: 'iPhone 14 Pro Max 256GB',
-                category: 'digital',
-                price: 5800,
-                originalPrice: 8999,
-                condition: '9成新',
-                description: '自用iPhone 14 Pro Max，电池健康度92%，无任何维修史，配件齐全',
-                image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=400&fit=crop',
-                seller: '数码达人',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=数码达人&background=10b981&color=fff',
-                createdAt: Date.now() - 86400000,
-                favorites: 0
+                id: 'digital',
+                name: '手机数码',
+                icon: 'fas fa-mobile-alt',
+                color: 'from-blue-400 to-blue-500',
+                bgColor: 'bg-blue-50',
+                subCategories: [
+                    { id: 'phone', name: '手机' },
+                    { id: 'tablet', name: '平板电脑' },
+                    { id: 'headphone', name: '耳机音箱' },
+                    { id: 'wearable', name: '智能穿戴' },
+                    { id: 'accessory', name: '手机配件' }
+                ]
             },
             {
-                id: 2,
-                title: '《活着》余华 - 精装版',
-                category: 'books',
-                price: 25,
-                originalPrice: 49,
-                condition: '8成新',
-                description: '看完一遍，保存完好，纸质精良',
-                image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=400&fit=crop',
-                seller: '书虫爱好者',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=书虫&background=f59e0b&color=fff',
-                createdAt: Date.now() - 172800000,
-                favorites: 0
+                id: 'laptop',
+                name: '电脑办公',
+                icon: 'fas fa-laptop',
+                color: 'from-indigo-400 to-indigo-500',
+                bgColor: 'bg-indigo-50',
+                subCategories: [
+                    { id: 'notebook', name: '笔记本' },
+                    { id: 'desktop', name: '台式机' },
+                    { id: 'monitor', name: '显示器' },
+                    { id: 'keyboard', name: '键盘鼠标' },
+                    { id: 'storage', name: '存储设备' }
+                ]
             },
             {
-                id: 3,
-                title: 'Nike Air Jordan 1 篮球鞋',
-                category: 'clothing',
-                price: 450,
-                originalPrice: 1299,
-                condition: '7成新',
-                description: '经典配色，穿过几次，尺码42，无明显磨损',
-                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
-                seller: '运动男孩',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=运动男孩&background=3b82f6&color=fff',
-                createdAt: Date.now() - 259200000,
-                favorites: 0
+                id: 'camera',
+                name: '相机摄影',
+                icon: 'fas fa-camera',
+                color: 'from-red-400 to-red-500',
+                bgColor: 'bg-red-50',
+                subCategories: [
+                    { id: 'dslr', name: '单反相机' },
+                    { id: 'mirrorless', name: '微单相机' },
+                    { id: 'lens', name: '镜头' },
+                    { id: 'drone', name: '无人机' },
+                    { id: 'camcorder', name: '摄像机' }
+                ]
             },
             {
-                id: 4,
-                title: 'IKEA 简约书桌',
-                category: 'furniture',
-                price: 180,
-                originalPrice: 599,
-                condition: '8成新',
-                description: '白色简约风格，尺寸120x60，搬家转让，自提',
-                image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400&h=400&fit=crop',
-                seller: '家居达人',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=家居&background=8b5cf6&color=fff',
-                createdAt: Date.now() - 345600000,
-                favorites: 0
+                id: 'games',
+                name: '游戏动漫',
+                icon: 'fas fa-gamepad',
+                color: 'from-green-400 to-green-500',
+                bgColor: 'bg-green-50',
+                subCategories: [
+                    { id: 'console', name: '游戏机' },
+                    { id: 'game-disc', name: '游戏光盘' },
+                    { id: 'anime', name: '动漫周边' },
+                    { id: 'figure', name: '手办模型' },
+                    { id: 'account', name: '游戏账号' }
+                ]
             },
             {
-                id: 5,
-                title: 'MacBook Air M2 2023',
-                category: 'laptop',
-                price: 7200,
-                originalPrice: 9999,
-                condition: '9成新',
-                description: 'M2芯片，8+256GB，买了不到半年，配件齐全',
-                image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop',
-                seller: '果粉小王',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=果粉&background=10b981&color=fff',
-                createdAt: Date.now() - 432000000,
-                favorites: 0
+                id: 'books',
+                name: '图书教材',
+                icon: 'fas fa-book',
+                color: 'from-amber-400 to-amber-500',
+                bgColor: 'bg-amber-50',
+                subCategories: [
+                    { id: 'textbook', name: '教材教辅' },
+                    { id: 'novel', name: '小说文学' },
+                    { id: 'professional', name: '专业书籍' },
+                    { id: 'magazine', name: '杂志期刊' },
+                    { id: 'cd-dvd', name: '音像制品' }
+                ]
             },
             {
-                id: 6,
-                title: 'Sony WH-1000XM4 降噪耳机',
-                category: 'digital',
-                price: 950,
-                originalPrice: 2599,
-                condition: '8成新',
-                description: '黑色，功能正常，配件齐全，续航优秀',
-                image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400&h=400&fit=crop',
-                seller: '音乐发烧友',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=音乐&background=ec4899&color=fff',
-                createdAt: Date.now() - 518400000,
-                favorites: 0
+                id: 'clothing',
+                name: '服装鞋帽',
+                icon: 'fas fa-tshirt',
+                color: 'from-pink-400 to-pink-500',
+                bgColor: 'bg-pink-50',
+                subCategories: [
+                    { id: 'mens', name: '男装' },
+                    { id: 'womens', name: '女装' },
+                    { id: 'shoes', name: '鞋子' },
+                    { id: 'bags', name: '箱包皮具' },
+                    { id: 'accessories', name: '配饰' }
+                ]
             },
             {
-                id: 7,
-                title: '考研英语词汇红宝书',
-                category: 'books',
-                price: 15,
-                originalPrice: 39,
-                condition: '7成新',
-                description: '2024版，笔记不多，可附送真题',
-                image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=400&fit=crop',
-                seller: '考研学姐',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=考研&background=f59e0b&color=fff',
-                createdAt: Date.now() - 604800000,
-                favorites: 0
+                id: 'beauty',
+                name: '美妆护肤',
+                icon: 'fas fa-heart',
+                color: 'from-rose-400 to-rose-500',
+                bgColor: 'bg-rose-50',
+                subCategories: [
+                    { id: 'skincare', name: '护肤品' },
+                    { id: 'makeup', name: '彩妆' },
+                    { id: 'perfume', name: '香水' },
+                    { id: 'beauty-tool', name: '美容仪器' },
+                    { id: 'nail', name: '美甲' }
+                ]
             },
             {
-                id: 8,
-                title: 'ZARA 女士风衣 M码',
-                category: 'clothing',
-                price: 120,
-                originalPrice: 599,
-                condition: '9成新',
-                description: '经典卡其色，春秋款，仅试穿一次',
-                image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&h=400&fit=crop',
-                seller: '时尚达人',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=时尚&background=8b5cf6&color=fff',
-                createdAt: Date.now() - 691200000,
-                favorites: 0
+                id: 'furniture',
+                name: '家居家电',
+                icon: 'fas fa-couch',
+                color: 'from-teal-400 to-teal-500',
+                bgColor: 'bg-teal-50',
+                subCategories: [
+                    { id: 'furniture-item', name: '家具' },
+                    { id: 'appliance', name: '大家电' },
+                    { id: 'small-appliance', name: '小家电' },
+                    { id: 'decoration', name: '家居装饰' },
+                    { id: 'kitchen', name: '厨具' }
+                ]
             },
             {
-                id: 9,
-                title: 'Sony A7III 全画幅相机',
-                category: 'camera',
-                price: 9800,
-                originalPrice: 15000,
-                condition: '9成新',
-                description: '单机身，无任何问题，配件齐全，送相机包',
-                image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=400&fit=crop',
-                seller: '摄影大师',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=摄影&background=ef4444&color=fff',
-                createdAt: Date.now() - 750000000,
-                favorites: 0
+                id: 'sports',
+                name: '运动户外',
+                icon: 'fas fa-running',
+                color: 'from-cyan-400 to-cyan-500',
+                bgColor: 'bg-cyan-50',
+                subCategories: [
+                    { id: 'fitness', name: '健身器材' },
+                    { id: 'outdoor', name: '户外装备' },
+                    { id: 'ball', name: '球类运动' },
+                    { id: 'cycling', name: '骑行装备' },
+                    { id: 'swimming', name: '游泳用品' }
+                ]
             },
             {
-                id: 10,
-                title: 'Switch OLED 游戏机',
-                category: 'games',
-                price: 1800,
-                originalPrice: 2599,
-                condition: '9成新',
-                description: '白色OLED版，配件齐全，买来玩了一个月',
-                image: 'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=400&h=400&fit=crop',
-                seller: '游戏玩家',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=游戏&background=22c55e&color=fff',
-                createdAt: Date.now() - 800000000,
-                favorites: 0
+                id: 'pets',
+                name: '宠物用品',
+                icon: 'fas fa-paw',
+                color: 'from-orange-400 to-orange-500',
+                bgColor: 'bg-orange-50',
+                subCategories: [
+                    { id: 'pet-food', name: '宠物食品' },
+                    { id: 'pet-toy', name: '宠物玩具' },
+                    { id: 'pet-cage', name: '笼舍窝具' },
+                    { id: 'pet-care', name: '护理用品' },
+                    { id: 'pet-live', name: '活体宠物' }
+                ]
             },
             {
-                id: 11,
-                title: 'SK-II 神仙水 230ml',
-                category: 'beauty',
-                price: 560,
-                originalPrice: 1190,
-                condition: '全新',
-                description: '日上免税店购买，正品保证，未拆封',
-                image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
-                seller: '美妆达人',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=美妆&background=ec4899&color=fff',
-                createdAt: Date.now() - 850000000,
-                favorites: 0
-            },
-            {
-                id: 12,
-                title: '瑜伽垫+瑜伽球套装',
-                category: 'sports',
-                price: 68,
-                originalPrice: 199,
-                condition: '8成新',
-                description: '使用次数不多，干净卫生，居家健身必备',
-                image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=400&fit=crop',
-                seller: '健身爱好者',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=健身&background=14b8a6&color=fff',
-                createdAt: Date.now() - 900000000,
-                favorites: 0
+                id: 'other',
+                name: '更多分类',
+                icon: 'fas fa-ellipsis-h',
+                color: 'from-gray-400 to-gray-500',
+                bgColor: 'bg-gray-50',
+                subCategories: [
+                    { id: 'ticket', name: '票务卡券' },
+                    { id: 'instrument', name: '乐器' },
+                    { id: 'antique', name: '收藏品' },
+                    { id: 'service', name: '服务技能' },
+                    { id: 'free', name: '免费赠送' }
+                ]
             }
         ];
 
         // 用户数据
         let currentUser = null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        let currentCategory = 'all';
+        let currentCategory = null;
+        let currentSubCategory = null;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryGrid();
             renderProducts();
             updateFavoritesCount();
             checkLoginStatus();
@@ -1264,15 +1263,106 @@
             }
         }
 
+        // ==================== 分类系统 ====================
+        
+        // 渲染分类宫格
+        function renderCategoryGrid() {
+            const grid = document.getElementById('categoryGrid');
+            
+            grid.innerHTML = categories.map(cat => `
+                <div onclick="selectCategory('${cat.id}')" class="category-item flex flex-col items-center cursor-pointer group">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-md">
+                        <i class="${cat.icon} text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-600 text-center font-medium">${cat.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // 选择分类
+        function selectCategory(categoryId) {
+            currentCategory = categoryId;
+            currentSubCategory = null;
+            
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            // 显示二级分类
+            document.getElementById('currentCategoryTitle').textContent = category.name + ' · 选择细分类';
+            document.getElementById('subCategorySection').classList.remove('hidden');
+            
+            // 渲染二级分类
+            const subGrid = document.getElementById('subCategoryFilters');
+            subGrid.innerHTML = `
+                <button onclick="selectSubCategory(null)" class="sub-cat-btn px-4 py-2 rounded-full text-sm font-medium bg-amber-500 text-white">
+                    全部${category.name}
+                </button>
+                ${category.subCategories.map(sub => `
+                    <button onclick="selectSubCategory('${sub.id}')" class="sub-cat-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-gray-600 hover:bg-amber-100 hover:text-amber-600 border border-gray-200">
+                        ${sub.name}
+                    </button>
+                `).join('')}
+            `;
+            
+            renderProducts();
+        }
+
+        // 选择二级分类
+        function selectSubCategory(subId) {
+            currentSubCategory = subId;
+            
+            // 更新按钮样式
+            document.querySelectorAll('.sub-cat-btn').forEach((btn, index) => {
+                if (index === 0 && subId === null) {
+                    btn.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+                    btn.classList.add('bg-amber-500', 'text-white');
+                } else if (index > 0) {
+                    const isCurrent = btn.textContent.trim() === categories.find(c => c.id === currentCategory)?.subCategories.find(s => s.id === subId)?.name;
+                    if (isCurrent) {
+                        btn.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+                        btn.classList.add('bg-amber-500', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-amber-500', 'text-white');
+                        btn.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+                    }
+                }
+            });
+            
+            renderProducts();
+        }
+
+        // 清除分类筛选
+        function clearCategoryFilter() {
+            currentCategory = null;
+            currentSubCategory = null;
+            document.getElementById('subCategorySection').classList.add('hidden');
+            renderProducts();
+        }
+
+        // ==================== 商品渲染 ====================
+        
         // 渲染商品列表
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             const emptyState = document.getElementById('emptyState');
+            const noProductsState = document.getElementById('noProductsState');
+            const sortSection = document.getElementById('sortSection');
+            
+            // 如果全站没有商品
+            if (products.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.add('hidden');
+                noProductsState.classList.remove('hidden');
+                sortSection.classList.add('hidden');
+                return;
+            }
+            
+            noProductsState.classList.add('hidden');
             
             let filteredProducts = [...products];
             
             // 分类筛选
-            if (currentCategory !== 'all') {
+            if (currentCategory) {
                 filteredProducts = filteredProducts.filter(p => p.category === currentCategory);
             }
             
@@ -1295,13 +1385,18 @@
                 filteredProducts.sort((a, b) => b.createdAt - a.createdAt);
             }
             
+            // 更新商品数量
+            document.getElementById('productCount').textContent = `共 ${filteredProducts.length} 件商品`;
+            
             if (filteredProducts.length === 0) {
                 grid.innerHTML = '';
                 emptyState.classList.remove('hidden');
+                sortSection.classList.add('hidden');
                 return;
             }
             
             emptyState.classList.add('hidden');
+            sortSection.classList.remove('hidden');
             
             grid.innerHTML = filteredProducts.map(product => {
                 const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
@@ -1351,21 +1446,9 @@
         }
 
         // 获取分类名称
-        function getCategoryName(category) {
-            const names = {
-                'digital': '手机数码',
-                'laptop': '电脑办公',
-                'camera': '相机单反',
-                'games': '游戏动漫',
-                'books': '图书音像',
-                'clothing': '服装鞋帽',
-                'beauty': '美妆护肤',
-                'furniture': '家居家电',
-                'sports': '运动户外',
-                'pets': '宠物用品',
-                'other': '其他'
-            };
-            return names[category] || category;
+        function getCategoryName(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            return category ? category.name : '未分类';
         }
 
         // 获取时间差
@@ -1379,24 +1462,6 @@
             const days = Math.floor(hours / 24);
             if (days < 7) return `${days}天前`;
             return new Date(timestamp).toLocaleDateString('zh-CN');
-        }
-
-        // 分类筛选
-        function filterByCategory(category) {
-            currentCategory = category;
-            
-            // 更新按钮样式
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                if (btn.dataset.category === category) {
-                    btn.classList.remove('bg-gray-100', 'text-gray-600');
-                    btn.classList.add('bg-primary-500', 'text-white');
-                } else {
-                    btn.classList.remove('bg-primary-500', 'text-white');
-                    btn.classList.add('bg-gray-100', 'text-gray-600');
-                }
-            });
-            
-            renderProducts();
         }
 
         // 排序商品
@@ -1665,11 +1730,17 @@
 
         // 返回首页
         function goHome() {
-            currentCategory = 'all';
+            currentCategory = null;
+            currentSubCategory = null;
             document.getElementById('searchInput').value = '';
-            filterByCategory('all');
+            document.getElementById('subCategorySection').classList.add('hidden');
             renderProducts();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 如何发布（功能说明）
+        function showHowToSell() {
+            showToast('发布流程：拍照上传 → 填写信息 → 确认发布 → 等待买家联系');
         }
 
         // 显示提示消息
