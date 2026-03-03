@@ -105,6 +105,9 @@
                             onkeypress="handleSearch(event)">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     </div>
+                    <button onclick="showNearby()" class="ml-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm" title="查看附近商品">
+                        <i class="fas fa-map-marker-alt mr-1"></i>附近
+                    </button>
                 </div>
 
                 <!-- 导航链接 -->
@@ -657,6 +660,34 @@
                     </div>
                 </div>
                 
+                <!-- 收货地址 -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-3">
+                        <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>收货地址
+                    </label>
+                    <div class="space-y-3">
+                        <div class="flex gap-2">
+                            <select id="province" onchange="loadCities()" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="">请选择省份</option>
+                            </select>
+                            <select id="city" onchange="loadDistricts()" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="">请选择城市</option>
+                            </select>
+                            <select id="district" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="">请选择区县</option>
+                            </select>
+                        </div>
+                        <input type="text" id="detailedAddress" placeholder="详细地址（街道、小区、楼栋、门牌号等）" 
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <div class="flex gap-2">
+                            <input type="text" id="receiverName" placeholder="收货人姓名" 
+                                class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <input type="tel" id="receiverPhone" placeholder="收货人电话" 
+                                class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 支付按钮 -->
                 <button id="payButton" onclick="processPayment()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] flex items-center justify-center">
                     <i class="fab fa-alipay mr-2 text-lg"></i> 
@@ -1141,6 +1172,28 @@
                 <!-- 操作按钮 -->
                 <div id="orderActions" class="flex space-x-3">
                     <!-- 根据订单状态动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 我的商品弹窗 -->
+    <div id="myProductsModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeMyProductsModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-6 fade-in max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-box text-blue-500 mr-2"></i>我的商品
+                    </h2>
+                    <button onclick="closeMyProductsModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 商品列表 -->
+                <div id="myProductsList" class="flex-1 overflow-y-auto">
+                    <!-- 动态加载 -->
                 </div>
             </div>
         </div>
@@ -2036,6 +2089,147 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // 附近功能 - 基于IP/定位获取附近商品
+        let userLocation = null;
+        
+        function showNearby() {
+            if (!navigator.geolocation) {
+                showToast('您的浏览器不支持定位功能');
+                return;
+            }
+            
+            showToast('正在获取您的位置...');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    // 模拟：根据位置显示附近的商品（实际需要后端支持）
+                    // 这里随机分配一些模拟位置
+                    showNearbyProducts();
+                },
+                (error) => {
+                    // 如果获取定位失败，使用IP模拟
+                    console.log('定位失败，使用IP模拟');
+                    showToast('已通过IP定位显示附近商品');
+                    showNearbyProducts();
+                },
+                { enableHighAccuracy: true, timeout: 5000 }
+            );
+        }
+
+        function showNearbyProducts() {
+            // 模拟给商品添加位置信息
+            const nearbyProductCount = Math.min(products.length, 6);
+            const nearbyProducts = products.slice(0, nearbyProductCount).map(p => ({
+                ...p,
+                distance: Math.random() * 10, // 模拟距离 0-10km
+                location: getRandomCity()
+            }));
+            
+            // 按距离排序
+            nearbyProducts.sort((a, b) => a.distance - b.distance);
+            
+            // 显示附近商品
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const noProductsState = document.getElementById('noProductsState');
+            const sortSection = document.getElementById('sortSection');
+            
+            noProductsState.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            sortSection.classList.remove('hidden');
+            
+            // 显示标题
+            let titleHtml = `
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
+                        <span class="text-lg font-bold text-gray-800">附近商品</span>
+                        <span class="text-sm text-gray-500 ml-2">(显示附近${nearbyProducts.length}件商品)</span>
+                    </div>
+                    <button onclick="goHome()" class="text-primary-500 hover:text-primary-600 text-sm">
+                        <i class="fas fa-times mr-1"></i>取消
+                    </button>
+                </div>
+            `;
+            
+            grid.innerHTML = titleHtml + nearbyProducts.map(product => {
+                const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+                const isFavorited = favorites.includes(product.id);
+                
+                return `
+                    <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 animate__animated animate__fadeInUp">
+                        <div class="relative">
+                            <img src="${product.image}" alt="${product.title}" class="w-full h-48 object-cover">
+                            ${discount > 0 ? `<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">-${discount}%</span>` : ''}
+                            <button onclick="toggleFavorite(${product.id})" class="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-colors hover:scale-110">
+                                <i class="fas fa-heart ${isFavorited ? 'text-red-500' : 'text-gray-400'}"></i>
+                            </button>
+                            <span class="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                <i class="fas fa-location-arrow mr-1"></i>${product.distance.toFixed(1)}km
+                            </span>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">${getCategoryName(product.category)}</span>
+                                <span class="text-xs text-gray-400">${getTimeAgo(product.createdAt)}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 mb-2 truncate">${product.title}</h3>
+                            <p class="text-gray-500 text-sm mb-3 line-clamp-2">${product.description}</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-xl font-bold text-primary-600">¥${product.price}</span>
+                                    ${product.originalPrice ? `<span class="text-sm text-gray-400 line-through ml-2">¥${product.originalPrice}</span>` : ''}
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-primary-50 text-primary-600 rounded-full">${product.condition}</span>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <div class="flex items-center">
+                                    <img src="${product.sellerAvatar}" class="w-6 h-6 rounded-full mr-2">
+                                    <span class="text-sm text-gray-600">${product.seller}</span>
+                                </div>
+                                <div class="flex space-x-1">
+                                    <button onclick="openChat(${product.id})" class="text-blue-600 hover:text-blue-700 text-xs font-medium px-2 py-1 rounded-lg hover:bg-blue-50" title="私信聊天">
+                                        <i class="fas fa-comment mr-1"></i>聊天
+                                    </button>
+                                    <button onclick="showSellerContact(${product.id})" class="text-green-600 hover:text-green-700 text-xs font-medium px-2 py-1 rounded-lg hover:bg-green-50" title="查看联系方式">
+                                        <i class="fas fa-phone mr-1"></i>联系
+                                    </button>
+                                    <button onclick="showPaymentModal(${product.id})" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-medium px-3 py-1 rounded-full transition-all">
+                                        <i class="fas fa-shopping-cart mr-1"></i>购买
+                                    </button>
+                                </div>
+                            </div>
+                            ${(product.contact && (product.contact.wechat || product.contact.qq || product.contact.phone || product.contact.email)) ? `
+                            <div class="mt-3 pt-3 border-t border-dashed border-gray-200">
+                                <p class="text-xs text-gray-400 mb-2">联系方式：</p>
+                                <div class="flex flex-wrap gap-1">
+                                    ${product.contact.wechat ? `<span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded"><i class="fab fa-weixin mr-1"></i>${product.contact.wechat}</span>` : ''}
+                                    ${product.contact.qq ? `<span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded"><i class="fab fa-qq mr-1"></i>${product.contact.qq}</span>` : ''}
+                                    ${product.contact.phone ? `<span class="text-xs bg-gray-50 text-gray-600 px-2 py-0.5 rounded"><i class="fas fa-phone mr-1"></i>${product.contact.phone}</span>` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('productCount').textContent = `附近 ${nearbyProducts.length} 件商品`;
+            
+            window.scrollTo({ top: 200, behavior: 'smooth' });
+            showToast('已显示附近的商品');
+        }
+
+        function getRandomCity() {
+            const cities = ['北京', '上海', '广州', '深圳', '杭州', '南京', '武汉', '成都', '西安', '重庆'];
+            return cities[Math.floor(Math.random() * cities.length)];
+        }
+
         // 如何发布（功能说明）
         function showHowToSell() {
             showToast('发布流程：拍照上传 → 填写信息 → 确认发布 → 等待买家联系');
@@ -2057,10 +2251,94 @@
             toggleUserDropdown();
         }
 
-        // 我的商品（模拟）
+        // ==================== 我的商品 ====================
         function showMyProducts() {
-            showToast('我的商品功能开发中...');
+            if (!currentUser) {
+                showToast('请先登录');
+                showLoginModal();
+                toggleUserDropdown();
+                return;
+            }
+            
             toggleUserDropdown();
+            
+            // 获取当前用户发布的商品
+            const myProducts = products.filter(p => p.sellerId === currentUser.email);
+            
+            const listContainer = document.getElementById('myProductsList');
+            
+            if (myProducts.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-box text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">您还没有发布商品</h3>
+                        <p class="text-gray-500 mb-4">快去发布您的第一个商品吧</p>
+                        <button onclick="closeMyProductsModal(); showPublishModal();" class="bg-primary-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>发布商品
+                        </button>
+                    </div>
+                `;
+            } else {
+                listContainer.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${myProducts.map(product => `
+                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                                <div class="relative">
+                                    <img src="${product.image}" alt="${product.title}" class="w-full h-40 object-cover">
+                                    <span class="absolute top-2 right-2 text-xs px-2 py-1 bg-primary-500 text-white rounded-full">${product.condition}</span>
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-gray-800 mb-1 truncate">${product.title}</h3>
+                                    <p class="text-xl font-bold text-primary-600 mb-2">¥${product.price}</p>
+                                    <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                                        <span><i class="fas fa-eye mr-1"></i>${product.favorites || 0}浏览</span>
+                                        <span>${getTimeAgo(product.createdAt)}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="editProduct(${product.id})" class="flex-1 bg-blue-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                                            <i class="fas fa-edit mr-1"></i>编辑
+                                        </button>
+                                        <button onclick="deleteProduct(${product.id})" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
+                                            <i class="fas fa-trash mr-1"></i>删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-4 text-center">
+                        <button onclick="closeMyProductsModal(); showPublishModal();" class="bg-primary-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>发布新商品
+                        </button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('myProductsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMyProductsModal() {
+            document.getElementById('myProductsModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // 删除商品
+        function deleteProduct(productId) {
+            if (!confirm('确定要删除这个商品吗？')) return;
+            
+            products = products.filter(p => p.id !== productId);
+            localStorage.setItem('products', JSON.stringify(products));
+            renderProducts();
+            showMyProducts(); // 刷新列表
+            showToast('商品已删除');
+        }
+
+        // 编辑商品
+        function editProduct(productId) {
+            showToast('编辑商品功能开发中...');
         }
 
         // ==================== 支付系统（支付宝/微信/银行卡/余额） ====================
@@ -2166,6 +2444,43 @@
                 return;
             }
             
+            // 验证收货地址
+            const province = document.getElementById('province').value;
+            const city = document.getElementById('city').value;
+            const district = document.getElementById('district').value;
+            const detailedAddress = document.getElementById('detailedAddress').value.trim();
+            const receiverName = document.getElementById('receiverName').value.trim();
+            const receiverPhone = document.getElementById('receiverPhone').value.trim();
+            
+            if (!province || !city || !district) {
+                showToast('请选择完整的省市区');
+                return;
+            }
+            if (!detailedAddress) {
+                showToast('请填写详细地址');
+                return;
+            }
+            if (!receiverName) {
+                showToast('请填写收货人姓名');
+                return;
+            }
+            if (!receiverPhone) {
+                showToast('请填写收货人电话');
+                return;
+            }
+            
+            // 保存收货地址
+            const shippingAddress = {
+                province,
+                city,
+                district,
+                detailedAddress,
+                receiverName,
+                receiverPhone,
+                fullAddress: `${province}${city}${district}${detailedAddress}`
+            };
+            currentPayProduct.shippingAddress = shippingAddress;
+            
             if (selectedPaymentMethod === 'alipay') {
                 closePaymentModal();
                 showAlipayQRModal();
@@ -2184,6 +2499,84 @@
                 showToast('请选择支付方式');
             }
         }
+
+        // 省市区数据
+        const addressData = {
+            '北京市': { '北京市': ['东城区', '西城区', '朝阳区', '丰台区', '石景山区', '海淀区', '门头沟区', '房山区', '通州区', '顺义区', '昌平区', '大兴区', '怀柔区', '平谷区', '密云区', '延庆区'] },
+            '上海市': { '上海市': ['黄浦区', '徐汇区', '长宁区', '静安区', '普陀区', '虹口区', '杨浦区', '闵行区', '宝山区', '嘉定区', '浦东新区', '金山区', '松江区', '青浦区', '奉贤区', '崇明区'] },
+            '广东省': {
+                '广州市': ['荔湾区', '越秀区', '海珠区', '天河区', '白云区', '黄埔区', '番禺区', '花都区', '南沙区', '从化区', '增城区'],
+                '深圳市': ['罗湖区', '福田区', '南山区', '宝安区', '龙岗区', '盐田区', '龙华区', '坪山区', '光明区'],
+                '东莞市': ['东城街道', '南城街道', '万江街道', '莞城街道', '石碣镇', '石龙镇', '茶山镇', '石排镇', '企石镇', '横沥镇', '桥头镇', '谢岗镇', '常平镇', '樟木头镇', '大朗镇', '黄江镇', '清溪镇', '塘厦镇', '凤岗镇', '大岭山镇', '长安镇', '虎门镇', '厚街镇', '沙田镇', '道滘镇', '洪梅镇', '麻涌镇', '望牛墩镇', '中堂镇', '高埗镇'],
+                '佛山市': ['禅城区', '南海区', '顺德区', '三水区', '高明区'],
+                '珠海市': ['香洲区', '斗门区', '金湾区']
+            },
+            '浙江省': {
+                '杭州市': ['上城区', '下城区', '江干区', '拱墅区', '西湖区', '滨江区', '萧山区', '余杭区', '富阳区', '临安区', '桐庐县', '淳安县', '建德市'],
+                '宁波市': ['海曙区', '江北区', '北仑区', '镇海区', '鄞州区', '奉化区', '象山县', '宁海县', '余姚市', '慈溪市'],
+                '温州市': ['鹿城区', '龙湾区', '瓯海区', '洞头区', '永嘉县', '平阳县', '苍南县', '文成县', '泰顺县', '瑞安市', '乐清市', '龙港市']
+            },
+            '江苏省': {
+                '南京市': ['玄武区', '秦淮区', '建邺区', '鼓楼区', '浦口区', '栖霞区', '雨花台区', '江宁区', '六合区', '溧水区', '高淳区'],
+                '苏州市': ['虎丘区', '吴中区', '相城区', '姑苏区', '吴江区', '常熟市', '张家港市', '昆山市', '太仓市']
+            },
+            '湖北省': {
+                '武汉市': ['江岸区', '江汉区', '硚口区', '汉阳区', '武昌区', '青山区', '洪山区', '东西湖区', '汉南区', '蔡甸区', '江夏区', '黄陂区', '新洲区']
+            },
+            '四川省': {
+                '成都市': ['锦江区', '青羊区', '金牛区', '武侯区', '成华区', '龙泉驿区', '青白江区', '新都区', '温江区', '双流区', '郫都区', '新津区', '简阳市', '都江堰市', '彭州市', '邛崃市', '崇州市', '金堂县', '大邑县', '蒲江县']
+            }
+        };
+
+        // 初始化省份下拉框
+        function initAddressSelect() {
+            const provinceSelect = document.getElementById('province');
+            if (!provinceSelect) return;
+            
+            const provinces = Object.keys(addressData);
+            provinceSelect.innerHTML = '<option value="">请选择省份</option>';
+            provinces.forEach(province => {
+                provinceSelect.innerHTML += `<option value="${province}">${province}</option>`;
+            });
+        }
+
+        // 加载城市下拉框
+        function loadCities() {
+            const province = document.getElementById('province').value;
+            const citySelect = document.getElementById('city');
+            const districtSelect = document.getElementById('district');
+            
+            citySelect.innerHTML = '<option value="">请选择城市</option>';
+            districtSelect.innerHTML = '<option value="">请选择区县</option>';
+            
+            if (!province || !addressData[province]) return;
+            
+            const cities = Object.keys(addressData[province]);
+            cities.forEach(city => {
+                citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+            });
+        }
+
+        // 加载区县下拉框
+        function loadDistricts() {
+            const province = document.getElementById('province').value;
+            const city = document.getElementById('city').value;
+            const districtSelect = document.getElementById('district');
+            
+            districtSelect.innerHTML = '<option value="">请选择区县</option>';
+            
+            if (!province || !city || !addressData[province][city]) return;
+            
+            const districts = addressData[province][city];
+            districts.forEach(district => {
+                districtSelect.innerHTML += `<option value="${district}">${district}</option>`;
+            });
+        }
+
+        // 初始化地址选择
+        document.addEventListener('DOMContentLoaded', () => {
+            initAddressSelect();
+        });
 
         // ========== 支付宝扫码支付 ==========
         function showAlipayQRModal() {
