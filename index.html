@@ -1341,7 +1341,7 @@
             },
             {
                 id: 'other',
-                name: '更多分类',
+                name: '其他',
                 icon: 'fas fa-ellipsis-h',
                 color: 'from-gray-400 to-gray-500',
                 bgColor: 'bg-gray-50',
@@ -1355,129 +1355,20 @@
             }
         ];
 
+        // 初始化（不加载测试商品）
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryGrid();
+            renderProducts();
+            updateFavoritesCount();
+            checkLoginStatus();
+        });
+
         // 用户数据
         let currentUser = null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
         let products = JSON.parse(localStorage.getItem('products')) || [];
         let currentCategory = null;
         let currentSubCategory = null;
-
-        // 示例商品数据（首次访问时加载）
-        const sampleProducts = [
-            {
-                id: 1,
-                title: 'iPhone 14 Pro 256G 暗紫色',
-                category: 'digital',
-                price: 5999,
-                originalPrice: 8999,
-                condition: '9成新',
-                description: '自用iPhone 14 Pro，暗紫色256G版本。购买于2023年3月，有轻微使用痕迹，屏幕完美无划痕，电池健康度92%。配件齐全，带原装充电线和耳机。',
-                image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=400&fit=crop',
-                seller: '数码达人',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=数码达人&background=3b82f6&color=fff',
-                sellerId: 'digital@example.com',
-                createdAt: Date.now() - 86400000 * 2,
-                favorites: 15,
-                contact: { wechat: 'digital_master888', phone: '13812345678' }
-            },
-            {
-                id: 2,
-                title: 'MacBook Pro M2 14寸 16G+512G',
-                category: 'laptop',
-                price: 9999,
-                originalPrice: 14999,
-                condition: '95新',
-                description: 'MacBook Pro M2芯片，14寸屏幕，16G内存512G固态硬盘。2023年入手，平时轻度办公使用，电池循环次数不到50次，屏幕键盘都很新。',
-                image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop',
-                seller: '科技宅',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=科技宅&background=6366f1&color=fff',
-                sellerId: 'laptop@example.com',
-                createdAt: Date.now() - 86400000 * 5,
-                favorites: 23,
-                contact: { qq: '12345678', email: 'laptop@test.com' }
-            },
-            {
-                id: 3,
-                title: '索尼A7M4相机 微单全画幅',
-                category: 'camera',
-                price: 12800,
-                originalPrice: 16999,
-                condition: '9成新',
-                description: '索尼A7M4全画幅微单相机，快门次数不到5000次，无任何磕碰划痕。带原装电池充电器，可送一个相机包。',
-                image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=400&fit=crop',
-                seller: '摄影大师',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=摄影大师&background=ef4444&color=fff',
-                sellerId: 'camera@example.com',
-                createdAt: Date.now() - 86400000 * 3,
-                favorites: 45,
-                contact: { wechat: 'photo_master', phone: '13987654321' }
-            },
-            {
-                id: 4,
-                title: '考研资料全套 数学英语政治',
-                category: 'books',
-                price: 99,
-                originalPrice: 500,
-                condition: '有笔记',
-                description: '2024考研全套复习资料，包含数学张宇36讲、英语真题、政治肖秀荣1000题等。书上有很多重点笔记，适合基础薄弱的同学。',
-                image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=400&fit=crop',
-                seller: '考研学姐',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=考研学姐&background=f59e0b&color=fff',
-                sellerId: 'books@example.com',
-                createdAt: Date.now() - 86400000,
-                favorites: 67,
-                contact: { qq: '2917310446', email: 'study@163.com' }
-            },
-            {
-                id: 5,
-                title: 'Nike Air Jordan 1 黑红 42码',
-                category: 'clothing',
-                price: 650,
-                originalPrice: 1299,
-                condition: '9成新',
-                description: 'AJ1黑红配色，42码，穿过几次就放着了。鞋底几乎没有磨损，鞋面干净，带原盒。适合收藏或日常穿搭。',
-                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
-                seller: '鞋控',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=鞋控&background=ec4899&color=fff',
-                sellerId: 'shoes@example.com',
-                createdAt: Date.now() - 86400000 * 7,
-                favorites: 32,
-                contact: { wechat: 'shoes_lover', phone: '13612345678' }
-            },
-            {
-                id: 6,
-                title: 'Switch游戏机 国行版 带健身环',
-                category: 'games',
-                price: 1599,
-                originalPrice: 2599,
-                condition: '95新',
-                description: '任天堂Switch国行版，带健身环大冒险游戏。手柄无漂移，主机完美运行。送两个额外游戏：塞尔达传说、马里奥赛车。',
-                image: 'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=400&h=400&fit=crop',
-                seller: '游戏玩家',
-                sellerAvatar: 'https://ui-avatars.com/api/?name=游戏玩家&background=22c55e&color=fff',
-                sellerId: 'games@example.com',
-                createdAt: Date.now() - 86400000 * 4,
-                favorites: 89,
-                contact: { qq: '88888888', wechat: 'gamer_pro' }
-            }
-        ];
-
-        // 初始化商品数据
-        function initProducts() {
-            if (products.length === 0) {
-                products = sampleProducts;
-                localStorage.setItem('products', JSON.stringify(products));
-            }
-        }
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            initProducts();
-            renderCategoryGrid();
-            renderProducts();
-            updateFavoritesCount();
-            checkLoginStatus();
-        });
 
         // 检查登录状态
         function checkLoginStatus() {
