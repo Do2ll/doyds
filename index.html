@@ -136,6 +136,9 @@
                             <a href="#" onclick="showProfile()" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
                                 <i class="fas fa-user mr-2"></i> 个人中心
                             </a>
+                            <a href="#" onclick="showMyOrders()" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-shopping-bag mr-2"></i> 我的订单
+                            </a>
                             <a href="#" onclick="showMyProducts()" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
                                 <i class="fas fa-box mr-2"></i> 我的商品
                             </a>
@@ -801,6 +804,196 @@
         </div>
     </div>
 
+    <!-- 卖家联系方式弹窗 -->
+    <div id="sellerContactModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeSellerContact()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+                <button onclick="closeSellerContact()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <img id="sellerContactAvatar" src="" class="w-20 h-20 rounded-full mx-auto mb-3">
+                    <h2 id="sellerContactName" class="text-xl font-bold text-gray-800"></h2>
+                    <p id="sellerContactProduct" class="text-gray-500 text-sm mt-1"></p>
+                </div>
+                
+                <!-- 联系方式列表 -->
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fab fa-weixin text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">微信</span>
+                                <span id="sellerWechat" class="text-gray-500 text-sm">点击复制</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('sellerWechat')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fab fa-alipay text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">支付宝</span>
+                                <span id="sellerAlipay" class="text-gray-500 text-sm">点击复制</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('sellerAlipay')" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-phone text-white"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">手机号</span>
+                                <span id="sellerPhone" class="text-gray-500 text-sm">点击复制</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('sellerPhone')" class="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 交易提示 -->
+                <div class="bg-yellow-50 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-yellow-700">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <strong>交易提示：</strong>建议使用平台担保交易，当面交易请验货后付款。
+                    </p>
+                </div>
+                
+                <button onclick="closeSellerContact()" class="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 我的订单弹窗 -->
+    <div id="ordersModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeOrdersModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-6 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-shopping-bag text-amber-500 mr-2"></i>我的订单
+                    </h2>
+                    <button onclick="closeOrdersModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 订单状态标签 -->
+                <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                    <button onclick="filterOrders('all')" class="order-tab active px-4 py-2 rounded-full text-sm font-medium bg-amber-500 text-white whitespace-nowrap" data-status="all">
+                        全部订单
+                    </button>
+                    <button onclick="filterOrders('pending')" class="order-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 whitespace-nowrap" data-status="pending">
+                        待付款
+                    </button>
+                    <button onclick="filterOrders('paid')" class="order-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 whitespace-nowrap" data-status="paid">
+                        待发货
+                    </button>
+                    <button onclick="filterOrders('shipped')" class="order-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 whitespace-nowrap" data-status="shipped">
+                        待收货
+                    </button>
+                    <button onclick="filterOrders('completed')" class="order-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 whitespace-nowrap" data-status="completed">
+                        已完成
+                    </button>
+                </div>
+                
+                <!-- 订单列表 -->
+                <div id="ordersList" class="space-y-4 max-h-96 overflow-y-auto">
+                    <!-- 订单将通过JS动态生成 -->
+                </div>
+                
+                <!-- 无订单提示 -->
+                <div id="noOrdersTip" class="hidden text-center py-12">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shopping-bag text-4xl text-gray-300"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-600 mb-2">暂无订单</h3>
+                    <p class="text-gray-400 mb-4">快去逛逛，发现好物吧！</p>
+                    <button onclick="closeOrdersModal(); goHome();" class="bg-amber-500 text-white px-6 py-2 rounded-full hover:bg-amber-600 transition-colors">
+                        去逛逛
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单详情弹窗 -->
+    <div id="orderDetailModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeOrderDetail()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">订单详情</h2>
+                    <button onclick="closeOrderDetail()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 订单状态 -->
+                <div id="orderStatusBanner" class="rounded-xl p-4 mb-6 text-center">
+                    <i id="orderStatusIcon" class="text-4xl mb-2"></i>
+                    <h3 id="orderStatusText" class="text-lg font-bold"></h3>
+                    <p id="orderStatusDesc" class="text-sm opacity-80"></p>
+                </div>
+                
+                <!-- 商品信息 -->
+                <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                    <div class="flex">
+                        <img id="orderDetailImage" src="" class="w-24 h-24 object-cover rounded-lg mr-4">
+                        <div class="flex-1">
+                            <h4 id="orderDetailTitle" class="font-medium text-gray-800 mb-1"></h4>
+                            <p id="orderDetailPrice" class="text-amber-500 font-bold text-lg mb-1"></p>
+                            <p id="orderDetailCondition" class="text-sm text-gray-500"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 订单信息 -->
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">订单编号</span>
+                        <span id="orderDetailId" class="text-gray-800 font-medium"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">创建时间</span>
+                        <span id="orderDetailTime" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">卖家</span>
+                        <span id="orderDetailSeller" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">支付方式</span>
+                        <span id="orderDetailPayMethod" class="text-gray-800"></span>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div id="orderActions" class="flex space-x-3">
+                    <!-- 根据订单状态动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 提示消息 -->
     <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50 slide-up">
         <span id="toastMessage"></span>
@@ -1143,10 +1336,10 @@
                                     <span class="text-sm text-gray-600">${product.seller}</span>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button onclick="showContactModal(${product.id})" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                                        <i class="fas fa-comment-dots mr-1"></i> 联系
+                                    <button onclick="showSellerContact(${product.id})" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                        <i class="fas fa-phone mr-1"></i> 联系
                                     </button>
-                                    <button onclick="showAlipayModal(${product.id})" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium px-3 py-1 rounded-full transition-all">
+                                    <button onclick="showPaymentModal(${product.id})" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium px-3 py-1 rounded-full transition-all">
                                         <i class="fas fa-shopping-cart mr-1"></i> 购买
                                     </button>
                                 </div>
@@ -1771,6 +1964,388 @@
         // 兼容旧函数名
         function showAlipayModal(productId) {
             showPaymentModal(productId);
+        }
+
+        // ==================== 卖家联系方式功能 ====================
+        let currentSellerProduct = null;
+
+        function showSellerContact(productId) {
+            currentSellerProduct = products.find(p => p.id === productId);
+            if (!currentSellerProduct) return;
+            
+            // 更新弹窗信息
+            document.getElementById('sellerContactAvatar').src = currentSellerProduct.sellerAvatar;
+            document.getElementById('sellerContactName').textContent = currentSellerProduct.seller;
+            document.getElementById('sellerContactProduct').textContent = '商品: ' + currentSellerProduct.title;
+            
+            // 模拟卖家联系方式（实际应从数据库获取）
+            const sellerContacts = {
+                '数码达人': { wechat: 'digital_master888', alipay: '138****5678', phone: '138****5678' },
+                '书虫爱好者': { wechat: 'bookworm_2024', alipay: '139****1234', phone: '139****1234' },
+                '运动男孩': { wechat: 'sports_boy666', alipay: '136****9999', phone: '136****9999' },
+                '家居达人': { wechat: 'home_style', alipay: '135****4567', phone: '135****4567' },
+                '果粉小王': { wechat: 'apple_fan2024', alipay: '137****8888', phone: '137****8888' },
+                '音乐发烧友': { wechat: 'music_lover', alipay: '133****7777', phone: '133****7777' },
+                '考研学姐': { wechat: 'study_hard2024', alipay: '131****6666', phone: '131****6666' },
+                '时尚达人': { wechat: 'fashion_star', alipay: '132****5555', phone: '132****5555' },
+                '摄影大师': { wechat: 'photo_master', alipay: '130****4444', phone: '130****4444' },
+                '游戏玩家': { wechat: 'gamer_pro', alipay: '159****3333', phone: '159****3333' },
+                '美妆达人': { wechat: 'beauty_girl', alipay: '158****2222', phone: '158****2222' },
+                '健身爱好者': { wechat: 'fitness_fan', alipay: '157****1111', phone: '157****1111' }
+            };
+            
+            const contact = sellerContacts[currentSellerProduct.seller] || { wechat: '未设置', alipay: '未设置', phone: '未设置' };
+            
+            document.getElementById('sellerWechat').textContent = contact.wechat;
+            document.getElementById('sellerAlipay').textContent = contact.alipay;
+            document.getElementById('sellerPhone').textContent = contact.phone;
+            
+            document.getElementById('sellerContactModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSellerContact() {
+            document.getElementById('sellerContactModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            if (text === '未设置' || text === '点击复制') {
+                showToast('该卖家暂未设置此联系方式');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制: ' + text);
+            }).catch(() => {
+                // 降级方案
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('已复制: ' + text);
+            });
+        }
+
+        // ==================== 订单管理系统 ====================
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let currentOrderFilter = 'all';
+        let currentOrderDetail = null;
+
+        // 添加订单
+        function addOrder(product, paymentMethod) {
+            const order = {
+                id: 'DOYDS' + Date.now(),
+                productId: product.id,
+                productTitle: product.title,
+                productImage: product.image,
+                productPrice: product.price,
+                productCondition: product.condition,
+                seller: product.seller,
+                sellerAvatar: product.sellerAvatar,
+                buyer: currentUser.name,
+                buyerAvatar: currentUser.avatar,
+                paymentMethod: paymentMethod,
+                status: 'pending', // pending, paid, shipped, completed, cancelled
+                createdAt: Date.now(),
+                paidAt: null,
+                shippedAt: null,
+                completedAt: null
+            };
+            
+            orders.unshift(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            return order;
+        }
+
+        // 更新订单状态
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                if (newStatus === 'paid') order.paidAt = Date.now();
+                if (newStatus === 'shipped') order.shippedAt = Date.now();
+                if (newStatus === 'completed') order.completedAt = Date.now();
+                localStorage.setItem('orders', JSON.stringify(orders));
+            }
+        }
+
+        // 显示订单列表
+        function showMyOrders() {
+            toggleUserDropdown();
+            renderOrders();
+            document.getElementById('ordersModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrdersModal() {
+            document.getElementById('ordersModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // 筛选订单
+        function filterOrders(status) {
+            currentOrderFilter = status;
+            
+            // 更新标签样式
+            document.querySelectorAll('.order-tab').forEach(tab => {
+                if (tab.dataset.status === status) {
+                    tab.classList.remove('bg-gray-100', 'text-gray-600');
+                    tab.classList.add('bg-amber-500', 'text-white');
+                } else {
+                    tab.classList.remove('bg-amber-500', 'text-white');
+                    tab.classList.add('bg-gray-100', 'text-gray-600');
+                }
+            });
+            
+            renderOrders();
+        }
+
+        // 渲染订单列表
+        function renderOrders() {
+            const list = document.getElementById('ordersList');
+            const noOrdersTip = document.getElementById('noOrdersTip');
+            
+            let filteredOrders = orders;
+            if (currentOrderFilter !== 'all') {
+                filteredOrders = orders.filter(o => o.status === currentOrderFilter);
+            }
+            
+            if (filteredOrders.length === 0) {
+                list.innerHTML = '';
+                noOrdersTip.classList.remove('hidden');
+                return;
+            }
+            
+            noOrdersTip.classList.add('hidden');
+            
+            const statusConfig = {
+                'pending': { text: '待付款', color: 'bg-orange-100 text-orange-600', icon: 'fas fa-clock' },
+                'paid': { text: '待发货', color: 'bg-blue-100 text-blue-600', icon: 'fas fa-box' },
+                'shipped': { text: '待收货', color: 'bg-purple-100 text-purple-600', icon: 'fas fa-truck' },
+                'completed': { text: '已完成', color: 'bg-green-100 text-green-600', icon: 'fas fa-check-circle' },
+                'cancelled': { text: '已取消', color: 'bg-gray-100 text-gray-500', icon: 'fas fa-times-circle' }
+            };
+            
+            list.innerHTML = filteredOrders.map(order => {
+                const config = statusConfig[order.status];
+                return `
+                    <div class="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer" onclick="showOrderDetail('${order.id}')">
+                        <div class="flex items-start">
+                            <img src="${order.productImage}" class="w-20 h-20 object-cover rounded-lg mr-4">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-medium text-gray-800 line-clamp-1">${order.productTitle}</h4>
+                                    <span class="text-sm px-2 py-1 rounded-full ${config.color}">
+                                        <i class="${config.icon} mr-1"></i>${config.text}
+                                    </span>
+                                </div>
+                                <p class="text-amber-500 font-bold mb-2">¥${order.productPrice}</p>
+                                <div class="flex justify-between items-center text-sm text-gray-500">
+                                    <span><i class="fas fa-user mr-1"></i>${order.seller}</span>
+                                    <span>${formatTime(order.createdAt)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示订单详情
+        function showOrderDetail(orderId) {
+            currentOrderDetail = orders.find(o => o.id === orderId);
+            if (!currentOrderDetail) return;
+            
+            // 更新订单状态横幅
+            const statusConfig = {
+                'pending': { 
+                    text: '待付款', 
+                    desc: '请在30分钟内完成支付',
+                    color: 'bg-gradient-to-r from-orange-400 to-orange-500 text-white',
+                    icon: 'fas fa-clock text-orange-200'
+                },
+                'paid': { 
+                    text: '待发货', 
+                    desc: '卖家正在准备发货',
+                    color: 'bg-gradient-to-r from-blue-400 to-blue-500 text-white',
+                    icon: 'fas fa-box text-blue-200'
+                },
+                'shipped': { 
+                    text: '待收货', 
+                    desc: '商品正在运输中',
+                    color: 'bg-gradient-to-r from-purple-400 to-purple-500 text-white',
+                    icon: 'fas fa-truck text-purple-200'
+                },
+                'completed': { 
+                    text: '已完成', 
+                    desc: '交易已完成',
+                    color: 'bg-gradient-to-r from-green-400 to-green-500 text-white',
+                    icon: 'fas fa-check-circle text-green-200'
+                },
+                'cancelled': { 
+                    text: '已取消', 
+                    desc: '订单已取消',
+                    color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white',
+                    icon: 'fas fa-times-circle text-gray-200'
+                }
+            };
+            
+            const config = statusConfig[currentOrderDetail.status];
+            
+            document.getElementById('orderStatusBanner').className = `rounded-xl p-4 mb-6 text-center ${config.color}`;
+            document.getElementById('orderStatusIcon').className = `${config.icon} text-4xl mb-2`;
+            document.getElementById('orderStatusText').textContent = config.text;
+            document.getElementById('orderStatusDesc').textContent = config.desc;
+            
+            // 更新商品信息
+            document.getElementById('orderDetailImage').src = currentOrderDetail.productImage;
+            document.getElementById('orderDetailTitle').textContent = currentOrderDetail.productTitle;
+            document.getElementById('orderDetailPrice').textContent = '¥' + currentOrderDetail.productPrice;
+            document.getElementById('orderDetailCondition').textContent = '成色: ' + currentOrderDetail.productCondition;
+            
+            // 更新订单信息
+            document.getElementById('orderDetailId').textContent = currentOrderDetail.id;
+            document.getElementById('orderDetailTime').textContent = formatTime(currentOrderDetail.createdAt);
+            document.getElementById('orderDetailSeller').textContent = currentOrderDetail.seller;
+            
+            const payMethodNames = {
+                'alipay': '支付宝',
+                'wechat': '微信支付',
+                'bank': '银行卡',
+                'balance': '余额支付'
+            };
+            document.getElementById('orderDetailPayMethod').textContent = payMethodNames[currentOrderDetail.paymentMethod] || '在线支付';
+            
+            // 更新操作按钮
+            const actionsContainer = document.getElementById('orderActions');
+            let actionsHTML = '';
+            
+            if (currentOrderDetail.status === 'pending') {
+                actionsHTML = `
+                    <button onclick="cancelOrder('${currentOrderDetail.id}')" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        取消订单
+                    </button>
+                    <button onclick="payNow('${currentOrderDetail.id}')" class="flex-1 bg-amber-500 text-white py-3 rounded-lg font-medium hover:bg-amber-600 transition-colors">
+                        立即支付
+                    </button>
+                `;
+            } else if (currentOrderDetail.status === 'shipped') {
+                actionsHTML = `
+                    <button onclick="confirmReceive('${currentOrderDetail.id}')" class="flex-1 bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                        确认收货
+                    </button>
+                `;
+            } else if (currentOrderDetail.status === 'completed') {
+                actionsHTML = `
+                    <button onclick="closeOrderDetail(); showSellerContact(${currentOrderDetail.productId});" class="flex-1 bg-amber-500 text-white py-3 rounded-lg font-medium hover:bg-amber-600 transition-colors">
+                        再次购买
+                    </button>
+                `;
+            } else {
+                actionsHTML = `
+                    <button onclick="closeOrderDetail()" class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                        关闭
+                    </button>
+                `;
+            }
+            
+            actionsContainer.innerHTML = actionsHTML;
+            
+            document.getElementById('orderDetailModal').classList.remove('hidden');
+        }
+
+        function closeOrderDetail() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+        }
+
+        // 取消订单
+        function cancelOrder(orderId) {
+            if (confirm('确定要取消这个订单吗？')) {
+                updateOrderStatus(orderId, 'cancelled');
+                closeOrderDetail();
+                renderOrders();
+                showToast('订单已取消');
+            }
+        }
+
+        // 立即支付
+        function payNow(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                closeOrderDetail();
+                closeOrdersModal();
+                // 模拟支付成功
+                updateOrderStatus(orderId, 'paid');
+                showToast('支付成功！');
+                showOrderDetail(orderId);
+            }
+        }
+
+        // 确认收货
+        function confirmReceive(orderId) {
+            if (confirm('确认已收到商品吗？')) {
+                updateOrderStatus(orderId, 'completed');
+                closeOrderDetail();
+                renderOrders();
+                showToast('已确认收货，交易完成！');
+            }
+        }
+
+        // 格式化时间
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 修改支付成功后的处理，添加订单
+        function simulatePaymentSuccess(method) {
+            const orderNumber = 'DOYDS' + Date.now();
+            const methodNames = {
+                'alipay': '支付宝',
+                'wechat': '微信支付',
+                'bank': '银行卡',
+                'balance': '余额支付'
+            };
+            
+            // 添加订单
+            const order = addOrder(currentPayProduct, method);
+            
+            // 关闭所有支付弹窗
+            closeAlipayQRModal();
+            closeWechatQRModal();
+            closeBankPayModal();
+            closePaymentModal();
+            
+            // 更新成功弹窗信息
+            document.getElementById('orderNumber').textContent = order.id;
+            document.getElementById('successProductName').textContent = currentPayProduct.title;
+            document.getElementById('successPaymentMethod').textContent = methodNames[method];
+            
+            // 更新支付方式图标
+            const iconContainer = document.getElementById('successPaymentIcon');
+            const icons = {
+                'alipay': '<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><i class="fab fa-alipay text-blue-600 text-2xl"></i></div>',
+                'wechat': '<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"><i class="fab fa-weixin text-green-600 text-2xl"></i></div>',
+                'bank': '<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-credit-card text-purple-600 text-2xl"></i></div>',
+                'balance': '<div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center"><i class="fas fa-wallet text-amber-600 text-2xl"></i></div>'
+            };
+            iconContainer.innerHTML = icons[method];
+            
+            // 显示成功弹窗
+            document.getElementById('paySuccessModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            showToast('支付成功！订单号: ' + order.id);
         }
     </script>
 </body>
