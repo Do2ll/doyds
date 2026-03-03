@@ -1366,7 +1366,8 @@
         // 用户数据
         let currentUser = null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        let products = JSON.parse(localStorage.getItem('products')) || [];
+        // 商品数据（始终为空，不加载任何测试商品）
+        let products = [];
         let currentCategory = null;
         let currentSubCategory = null;
 
