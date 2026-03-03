@@ -2352,8 +2352,7 @@
                     if (minutes === 0) {
                         clearInterval(countdownTimer);
                         showToast('支付超时，请重新下单');
-                        closeAlipayQRModal();
-                        closeWechatQRModal();
+                        closeXunhupayModal();
                         return;
                     }
                     minutes--;
