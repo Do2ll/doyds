@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOYDS - 二手闲置交易平台</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        accent: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center cursor-pointer" onclick="goHome()">
+                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-store text-white text-lg"></i>
+                    </div>
+                    <span class="ml-2 text-xl font-bold text-gray-800">DOYDS</span>
+                </div>
+
+                <!-- 搜索框 -->
+                <div class="hidden md:flex flex-1 max-w-lg mx-8">
+                    <div class="relative w-full">
+                        <input type="text" id="searchInput" placeholder="搜索商品..." 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
+                            onkeypress="handleSearch(event)">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- 导航链接 -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="goHome()" class="text-gray-600 hover:text-primary-600 transition-colors">
+                        <i class="fas fa-home mr-1"></i> 首页
+                    </button>
+                    <button onclick="showPublishModal()" class="text-gray-600 hover:text-primary-600 transition-colors">
+                        <i class="fas fa-plus-circle mr-1"></i> 发布
+                    </button>
+                    <button onclick="toggleFavorites()" class="text-gray-600 hover:text-primary-600 transition-colors relative">
+                        <i class="fas fa-heart mr-1"></i> 收藏
+                        <span id="favoritesCount" class="absolute -top-2 -right-2 bg-accent-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+                    
+                    <!-- 用户区域 -->
+                    <div id="userArea">
+                        <button onclick="showLoginModal()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition-colors">
+                            <i class="fas fa-sign-in-alt mr-1"></i> 登录
+                        </button>
+                    </div>
+                    <div id="userMenu" class="relative hidden">
+                        <button onclick="toggleUserDropdown()" class="flex items-center space-x-2">
+                            <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=10b981&color=fff" class="w-8 h-8 rounded-full">
+                            <span id="userName" class="text-gray-700 font-medium">用户</span>
+                            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                        </button>
+                        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden animate__animated animate__fadeIn">
+                            <a href="#" onclick="showProfile()" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-user mr-2"></i> 个人中心
+                            </a>
+                            <a href="#" onclick="showMyProducts()" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-box mr-2"></i> 我的商品
+                            </a>
+                            <hr class="my-1 border-gray-100">
+                            <a href="#" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-gray-50">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="pt-20 pb-16">
+        <!-- Hero区域 -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-500 py-12 mb-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="text-white mb-6 md:mb-0 animate__animated animate__fadeInLeft">
+                        <h1 class="text-3xl md:text-4xl font-bold mb-2">DOYDS - 闲置物品 变废为宝</h1>
+                        <p class="text-amber-100 text-lg">专业二手交易平台，让每一件物品都有新价值</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button onclick="goHome()" class="bg-white text-primary-600 px-6 py-3 rounded-full font-medium hover:shadow-lg transition-all hover:scale-105">
+                            <i class="fas fa-shopping-bag mr-2"></i> 浏览商品
+                        </button>
+                        <button onclick="showPublishModal()" class="bg-accent-500 text-white px-6 py-3 rounded-full font-medium hover:shadow-lg transition-all hover:scale-105">
+                            <i class="fas fa-camera mr-2"></i> 发布商品
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选和排序 -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <!-- 分类标签 -->
+                <div class="flex flex-wrap gap-2" id="categoryFilters">
+                    <button onclick="filterByCategory('all')" class="category-btn active px-4 py-2 rounded-full text-sm font-medium transition-all bg-primary-500 text-white" data-category="all">
+                        全部
+                    </button>
+                    <button onclick="filterByCategory('digital')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="digital">
+                        <i class="fas fa-mobile-alt mr-1"></i> 手机数码
+                    </button>
+                    <button onclick="filterByCategory('laptop')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="laptop">
+                        <i class="fas fa-laptop mr-1"></i> 电脑办公
+                    </button>
+                    <button onclick="filterByCategory('camera')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="camera">
+                        <i class="fas fa-camera mr-1"></i> 相机单反
+                    </button>
+                    <button onclick="filterByCategory('games')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="games">
+                        <i class="fas fa-gamepad mr-1"></i> 游戏动漫
+                    </button>
+                    <button onclick="filterByCategory('books')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="books">
+                        <i class="fas fa-book mr-1"></i> 图书音像
+                    </button>
+                    <button onclick="filterByCategory('clothing')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="clothing">
+                        <i class="fas fa-tshirt mr-1"></i> 服装鞋帽
+                    </button>
+                    <button onclick="filterByCategory('beauty')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="beauty">
+                        <i class="fas fa-heart mr-1"></i> 美妆护肤
+                    </button>
+                    <button onclick="filterByCategory('furniture')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="furniture">
+                        <i class="fas fa-couch mr-1"></i> 家居家电
+                    </button>
+                    <button onclick="filterByCategory('sports')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="sports">
+                        <i class="fas fa-running mr-1"></i> 运动户外
+                    </button>
+                    <button onclick="filterByCategory('pets')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="pets">
+                        <i class="fas fa-paw mr-1"></i> 宠物用品
+                    </button>
+                    <button onclick="filterByCategory('other')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-600" data-category="other">
+                        <i class="fas fa-ellipsis-h mr-1"></i> 其他
+                    </button>
+                </div>
+                
+                <!-- 排序 -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 text-sm">排序:</span>
+                    <select id="sortSelect" onchange="sortProducts()" class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="newest">最新发布</option>
+                        <option value="price-low">价格从低到高</option>
+                        <option value="price-high">价格从高到低</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品列表 -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- 商品卡片将通过JS动态生成 -->
+            </div>
+            
+            <!-- 无商品提示 -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-box-open text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-medium text-gray-600 mb-2">暂无商品</h3>
+                <p class="text-gray-400 mb-4">成为第一个发布商品的人吧！</p>
+                <button onclick="showPublishModal()" class="bg-primary-500 text-white px-6 py-2 rounded-full hover:bg-primary-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> 发布商品
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 登录弹窗 -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeLoginModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in relative">
+                <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-store text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">欢迎回来</h2>
+                    <p class="text-gray-500">登录您的 DOYDS 账户</p>
+                </div>
+                
+                <form onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">邮箱</label>
+                        <input type="email" id="loginEmail" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="your@email.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">密码</label>
+                        <input type="password" id="loginPassword" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="••••••••">
+                    </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="w-4 h-4 text-primary-500 rounded focus:ring-primary-500">
+                            <span class="ml-2 text-sm text-gray-600">记住我</span>
+                        </label>
+                        <a href="#" class="text-sm text-primary-600 hover:text-primary-700">忘记密码?</a>
+                    </div>
+                    <button type="submit" class="w-full bg-primary-500 text-white py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                        登录
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <span class="text-gray-500">还没有账户? </span>
+                    <button onclick="switchToRegister()" class="text-primary-600 font-medium hover:text-primary-700">立即注册</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册弹窗 -->
+    <div id="registerModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeRegisterModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in relative">
+                <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-plus text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">创建账户</h2>
+                    <p class="text-gray-500">加入 DOYDS 二手平台</p>
+                </div>
+                
+                <form onsubmit="handleRegister(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">用户名</label>
+                        <input type="text" id="registerName" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                            placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">邮箱</label>
+                        <input type="email" id="registerEmail" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                            placeholder="your@email.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">密码</label>
+                        <input type="password" id="registerPassword" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                            placeholder="至少6位密码">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">确认密码</label>
+                        <input type="password" id="registerConfirmPassword" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                            placeholder="再次输入密码">
+                    </div>
+                    <button type="submit" class="w-full bg-accent-500 text-white py-3 rounded-lg font-medium hover:bg-accent-600 transition-colors">
+                        注册
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <span class="text-gray-500">已有账户? </span>
+                    <button onclick="switchToLogin()" class="text-accent-600 font-medium hover:text-accent-700">立即登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布商品弹窗 -->
+    <div id="publishModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closePublishModal()"></div>
+        <div class="relative min-h-screen p-4 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 fade-in relative">
+                <button onclick="closePublishModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-camera text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">发布商品</h2>
+                    <p class="text-gray-500">在 DOYDS 展示您的闲置好物</p>
+                </div>
+                
+                <form onsubmit="handlePublish(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2 mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">商品标题 *</label>
+                            <input type="text" id="productTitle" required
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                placeholder="简洁有吸引力的标题">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">分类 *</label>
+                            <select id="productCategory" required
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option value="">选择分类</option>
+                                <option value="digital">手机数码</option>
+                                <option value="laptop">电脑办公</option>
+                                <option value="camera">相机单反</option>
+                                <option value="games">游戏动漫</option>
+                                <option value="books">图书音像</option>
+                                <option value="clothing">服装鞋帽</option>
+                                <option value="beauty">美妆护肤</option>
+                                <option value="furniture">家居家电</option>
+                                <option value="sports">运动户外</option>
+                                <option value="pets">宠物用品</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">新旧程度 *</label>
+                            <select id="productCondition" required
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option value="">选择成色</option>
+                                <option value="全新">全新未使用</option>
+                                <option value="9成新">9成新</option>
+                                <option value="8成新">8成新</option>
+                                <option value="7成新">7成新</option>
+                                <option value="6成新及以下">6成新及以下</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">售价 (元) *</label>
+                            <input type="number" id="productPrice" required min="0" step="0.01"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                placeholder="0.00">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">原价 (元)</label>
+                            <input type="number" id="productOriginalPrice" min="0" step="0.01"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                placeholder="0.00">
+                        </div>
+                        
+                        <div class="md:col-span-2 mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">商品描述 *</label>
+                            <textarea id="productDescription" required rows="4"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                                placeholder="详细描述商品的情况、品牌、尺寸、购买时间等信息"></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2 mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">商品图片</label>
+                            <div class="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer" onclick="document.getElementById('productImage').click()">
+                                <input type="file" id="productImage" accept="image/*" class="hidden" onchange="handleImagePreview(event)">
+                                <div id="imagePreviewContainer">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2"></i>
+                                    <p class="text-gray-500">点击或拖拽上传图片</p>
+                                    <p class="text-gray-400 text-sm">支持 JPG、PNG 格式</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary-500 text-white py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i> 发布商品
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收藏夹侧边栏 -->
+    <div id="favoritesSidebar" class="fixed top-16 right-0 bottom-0 w-80 bg-white shadow-2xl z-40 hidden transform translate-x-full transition-transform duration-300">
+        <div class="flex flex-col h-full">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-heart text-red-500 mr-2"></i>我的收藏
+                </h3>
+                <button onclick="toggleFavorites()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="favoritesList" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- 收藏商品将通过JS动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 联系卖家弹窗 -->
+    <div id="contactModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeContactModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+                <button onclick="closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comments text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">联系卖家</h2>
+                    <p id="contactProductName" class="text-gray-500 mt-1"></p>
+                </div>
+                
+                <form onsubmit="handleContact(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">留言内容</label>
+                        <textarea id="contactMessage" required rows="4"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                            placeholder="我想了解一下这件商品..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-primary-500 text-white py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i> 发送消息
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 支付宝支付弹窗 -->
+    <div id="alipayModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeAlipayModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+                <button onclick="closeAlipayModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fab fa-alipay text-white text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">支付宝支付</h2>
+                    <p id="payProductName" class="text-gray-500 mt-1"></p>
+                </div>
+                
+                <!-- 订单信息 -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-500">商品名称</span>
+                        <span id="payProductTitle" class="text-gray-800 font-medium text-right max-w-[60%] truncate"></span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-500">卖家</span>
+                        <span id="paySellerName" class="text-gray-800"></span>
+                    </div>
+                    <hr class="my-3 border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-800 font-bold">支付金额</span>
+                        <span id="payAmount" class="text-2xl font-bold text-orange-500">¥0</span>
+                    </div>
+                </div>
+                
+                <!-- 支付方式 -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-3">选择支付方式</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 border-2 border-blue-500 rounded-lg cursor-pointer bg-blue-50">
+                            <input type="radio" name="payMethod" value="alipay" checked class="w-4 h-4 text-blue-600">
+                            <div class="ml-3 flex items-center">
+                                <i class="fab fa-alipay text-2xl text-blue-600 mr-2"></i>
+                                <span class="font-medium text-gray-800">支付宝</span>
+                            </div>
+                            <span class="ml-auto text-xs text-blue-600">推荐</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="payMethod" value="balance" class="w-4 h-4 text-blue-600">
+                            <div class="ml-3 flex items-center">
+                                <i class="fas fa-wallet text-xl text-gray-600 mr-2"></i>
+                                <span class="font-medium text-gray-800">余额支付</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 支付按钮 -->
+                <button onclick="processAlipayPayment()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02]">
+                    <i class="fab fa-alipay mr-2 text-lg"></i> 立即支付
+                </button>
+                
+                <!-- 支付安全保障 -->
+                <div class="mt-4 flex items-center justify-center text-xs text-gray-400">
+                    <i class="fas fa-shield-alt mr-1"></i>
+                    <span>支付宝安全支付保障</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 支付成功弹窗 -->
+    <div id="paySuccessModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closePaySuccessModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 fade-in text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate__animated animate__bounceIn">
+                    <i class="fas fa-check text-white text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">支付成功</h2>
+                <p class="text-gray-500 mb-6">您的订单已支付成功，商品即将发货</p>
+                <div class="bg-green-50 rounded-lg p-4 mb-6">
+                    <p class="text-sm text-green-700">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        订单号: <span id="orderNumber"></span>
+                    </p>
+                </div>
+                <button onclick="closePaySuccessModal()" class="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                    完成
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50 slide-up">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-gray-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-store text-white text-lg"></i>
+                        </div>
+                        <span class="ml-2 text-xl font-bold text-white">DOYDS</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">专业二手交易平台，让闲置物品焕发新生</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">快速链接</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">首页</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">商品列表</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">发布商品</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">帮助中心</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">常见问题</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">交易保障</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">联系我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">关注我们</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-primary-500 transition-colors">
+                            <i class="fab fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-primary-500 transition-colors">
+                            <i class="fab fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-primary-500 transition-colors">
+                            <i class="fab fa-qq"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
+                &copy; 2026 DOYDS. All rights reserved. | 支付宝合作伙伴
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟商品数据 - 更新分类
+        let products = [
+            {
+                id: 1,
+                title: 'iPhone 14 Pro Max 256GB',
+                category: 'digital',
+                price: 5800,
+                originalPrice: 8999,
+                condition: '9成新',
+                description: '自用iPhone 14 Pro Max，电池健康度92%，无任何维修史，配件齐全',
+                image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=400&fit=crop',
+                seller: '数码达人',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=数码达人&background=10b981&color=fff',
+                createdAt: Date.now() - 86400000,
+                favorites: 0
+            },
+            {
+                id: 2,
+                title: '《活着》余华 - 精装版',
+                category: 'books',
+                price: 25,
+                originalPrice: 49,
+                condition: '8成新',
+                description: '看完一遍，保存完好，纸质精良',
+                image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=400&fit=crop',
+                seller: '书虫爱好者',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=书虫&background=f59e0b&color=fff',
+                createdAt: Date.now() - 172800000,
+                favorites: 0
+            },
+            {
+                id: 3,
+                title: 'Nike Air Jordan 1 篮球鞋',
+                category: 'clothing',
+                price: 450,
+                originalPrice: 1299,
+                condition: '7成新',
+                description: '经典配色，穿过几次，尺码42，无明显磨损',
+                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
+                seller: '运动男孩',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=运动男孩&background=3b82f6&color=fff',
+                createdAt: Date.now() - 259200000,
+                favorites: 0
+            },
+            {
+                id: 4,
+                title: 'IKEA 简约书桌',
+                category: 'furniture',
+                price: 180,
+                originalPrice: 599,
+                condition: '8成新',
+                description: '白色简约风格，尺寸120x60，搬家转让，自提',
+                image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400&h=400&fit=crop',
+                seller: '家居达人',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=家居&background=8b5cf6&color=fff',
+                createdAt: Date.now() - 345600000,
+                favorites: 0
+            },
+            {
+                id: 5,
+                title: 'MacBook Air M2 2023',
+                category: 'laptop',
+                price: 7200,
+                originalPrice: 9999,
+                condition: '9成新',
+                description: 'M2芯片，8+256GB，买了不到半年，配件齐全',
+                image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop',
+                seller: '果粉小王',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=果粉&background=10b981&color=fff',
+                createdAt: Date.now() - 432000000,
+                favorites: 0
+            },
+            {
+                id: 6,
+                title: 'Sony WH-1000XM4 降噪耳机',
+                category: 'digital',
+                price: 950,
+                originalPrice: 2599,
+                condition: '8成新',
+                description: '黑色，功能正常，配件齐全，续航优秀',
+                image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400&h=400&fit=crop',
+                seller: '音乐发烧友',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=音乐&background=ec4899&color=fff',
+                createdAt: Date.now() - 518400000,
+                favorites: 0
+            },
+            {
+                id: 7,
+                title: '考研英语词汇红宝书',
+                category: 'books',
+                price: 15,
+                originalPrice: 39,
+                condition: '7成新',
+                description: '2024版，笔记不多，可附送真题',
+                image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=400&fit=crop',
+                seller: '考研学姐',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=考研&background=f59e0b&color=fff',
+                createdAt: Date.now() - 604800000,
+                favorites: 0
+            },
+            {
+                id: 8,
+                title: 'ZARA 女士风衣 M码',
+                category: 'clothing',
+                price: 120,
+                originalPrice: 599,
+                condition: '9成新',
+                description: '经典卡其色，春秋款，仅试穿一次',
+                image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&h=400&fit=crop',
+                seller: '时尚达人',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=时尚&background=8b5cf6&color=fff',
+                createdAt: Date.now() - 691200000,
+                favorites: 0
+            },
+            {
+                id: 9,
+                title: 'Sony A7III 全画幅相机',
+                category: 'camera',
+                price: 9800,
+                originalPrice: 15000,
+                condition: '9成新',
+                description: '单机身，无任何问题，配件齐全，送相机包',
+                image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=400&fit=crop',
+                seller: '摄影大师',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=摄影&background=ef4444&color=fff',
+                createdAt: Date.now() - 750000000,
+                favorites: 0
+            },
+            {
+                id: 10,
+                title: 'Switch OLED 游戏机',
+                category: 'games',
+                price: 1800,
+                originalPrice: 2599,
+                condition: '9成新',
+                description: '白色OLED版，配件齐全，买来玩了一个月',
+                image: 'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=400&h=400&fit=crop',
+                seller: '游戏玩家',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=游戏&background=22c55e&color=fff',
+                createdAt: Date.now() - 800000000,
+                favorites: 0
+            },
+            {
+                id: 11,
+                title: 'SK-II 神仙水 230ml',
+                category: 'beauty',
+                price: 560,
+                originalPrice: 1190,
+                condition: '全新',
+                description: '日上免税店购买，正品保证，未拆封',
+                image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
+                seller: '美妆达人',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=美妆&background=ec4899&color=fff',
+                createdAt: Date.now() - 850000000,
+                favorites: 0
+            },
+            {
+                id: 12,
+                title: '瑜伽垫+瑜伽球套装',
+                category: 'sports',
+                price: 68,
+                originalPrice: 199,
+                condition: '8成新',
+                description: '使用次数不多，干净卫生，居家健身必备',
+                image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=400&fit=crop',
+                seller: '健身爱好者',
+                sellerAvatar: 'https://ui-avatars.com/api/?name=健身&background=14b8a6&color=fff',
+                createdAt: Date.now() - 900000000,
+                favorites: 0
+            }
+        ];
+
+        // 用户数据
+        let currentUser = null;
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let currentCategory = 'all';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateFavoritesCount();
+            checkLoginStatus();
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                currentUser = JSON.parse(user);
+                updateUserUI();
+            }
+        }
+
+        // 更新用户UI
+        function updateUserUI() {
+            const userArea = document.getElementById('userArea');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (currentUser) {
+                userArea.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userAvatar').src = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=10b981&color=fff`;
+            } else {
+                userArea.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        }
+
+        // 渲染商品列表
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filteredProducts = [...products];
+            
+            // 分类筛选
+            if (currentCategory !== 'all') {
+                filteredProducts = filteredProducts.filter(p => p.category === currentCategory);
+            }
+            
+            // 搜索筛选
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.title.toLowerCase().includes(searchTerm) || 
+                    p.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // 排序
+            const sortValue = document.getElementById('sortSelect').value;
+            if (sortValue === 'price-low') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (sortValue === 'price-high') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            } else {
+                filteredProducts.sort((a, b) => b.createdAt - a.createdAt);
+            }
+            
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            grid.innerHTML = filteredProducts.map(product => {
+                const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+                const isFavorited = favorites.includes(product.id);
+                
+                return `
+                    <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 animate__animated animate__fadeInUp">
+                        <div class="relative">
+                            <img src="${product.image}" alt="${product.title}" class="w-full h-48 object-cover">
+                            ${discount > 0 ? `<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">-${discount}%</span>` : ''}
+                            <button onclick="toggleFavorite(${product.id})" class="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-colors hover:scale-110">
+                                <i class="fas fa-heart ${isFavorited ? 'text-red-500' : 'text-gray-400'}"></i>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">${getCategoryName(product.category)}</span>
+                                <span class="text-xs text-gray-400">${getTimeAgo(product.createdAt)}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 mb-2 truncate">${product.title}</h3>
+                            <p class="text-gray-500 text-sm mb-3 line-clamp-2">${product.description}</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-xl font-bold text-primary-600">¥${product.price}</span>
+                                    ${product.originalPrice ? `<span class="text-sm text-gray-400 line-through ml-2">¥${product.originalPrice}</span>` : ''}
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-primary-50 text-primary-600 rounded-full">${product.condition}</span>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <div class="flex items-center">
+                                    <img src="${product.sellerAvatar}" class="w-6 h-6 rounded-full mr-2">
+                                    <span class="text-sm text-gray-600">${product.seller}</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="showContactModal(${product.id})" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                        <i class="fas fa-comment-dots mr-1"></i> 联系
+                                    </button>
+                                    <button onclick="showAlipayModal(${product.id})" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium px-3 py-1 rounded-full transition-all">
+                                        <i class="fas fa-shopping-cart mr-1"></i> 购买
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'digital': '手机数码',
+                'laptop': '电脑办公',
+                'camera': '相机单反',
+                'games': '游戏动漫',
+                'books': '图书音像',
+                'clothing': '服装鞋帽',
+                'beauty': '美妆护肤',
+                'furniture': '家居家电',
+                'sports': '运动户外',
+                'pets': '宠物用品',
+                'other': '其他'
+            };
+            return names[category] || category;
+        }
+
+        // 获取时间差
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return '刚刚';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}分钟前`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}小时前`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}天前`;
+            return new Date(timestamp).toLocaleDateString('zh-CN');
+        }
+
+        // 分类筛选
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // 更新按钮样式
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.remove('bg-gray-100', 'text-gray-600');
+                    btn.classList.add('bg-primary-500', 'text-white');
+                } else {
+                    btn.classList.remove('bg-primary-500', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-600');
+                }
+            });
+            
+            renderProducts();
+        }
+
+        // 排序商品
+        function sortProducts() {
+            renderProducts();
+        }
+
+        // 搜索
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                renderProducts();
+            }
+        }
+
+        // 收藏功能
+        function toggleFavorite(productId) {
+            const index = favorites.indexOf(productId);
+            if (index === -1) {
+                favorites.push(productId);
+                showToast('已添加到收藏');
+            } else {
+                favorites.splice(index, 1);
+                showToast('已取消收藏');
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavoritesCount();
+            renderProducts();
+            renderFavorites();
+        }
+
+        // 更新收藏数量
+        function updateFavoritesCount() {
+            const badge = document.getElementById('favoritesCount');
+            if (favorites.length > 0) {
+                badge.textContent = favorites.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // 渲染收藏列表
+        function renderFavorites() {
+            const list = document.getElementById('favoritesList');
+            const favoriteProducts = products.filter(p => favorites.includes(p.id));
+            
+            if (favoriteProducts.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-heart text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">暂无收藏商品</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = favoriteProducts.map(product => `
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <img src="${product.image}" class="w-16 h-16 object-cover rounded-lg mr-3">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-medium text-gray-800 truncate">${product.title}</h4>
+                        <p class="text-primary-600 font-bold">¥${product.price}</p>
+                    </div>
+                    <button onclick="toggleFavorite(${product.id}); toggleFavorites();" class="text-red-500 hover:text-red-600">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 切换收藏侧边栏
+        function toggleFavorites() {
+            const sidebar = document.getElementById('favoritesSidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('translate-x-full');
+            if (!sidebar.classList.contains('hidden')) {
+                renderFavorites();
+            }
+        }
+
+        // 登录相关
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function switchToRegister() {
+            closeLoginModal();
+            showRegisterModal();
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            
+            // 模拟登录
+            currentUser = {
+                name: email.split('@')[0],
+                email: email,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=10b981&color=fff`
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserUI();
+            closeLoginModal();
+            showToast('登录成功！欢迎回来');
+        }
+
+        // 注册相关
+        function showRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function switchToLogin() {
+            closeRegisterModal();
+            showLoginModal();
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showToast('两次密码输入不一致');
+                return;
+            }
+            
+            // 模拟注册
+            currentUser = {
+                name: name,
+                email: email,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserUI();
+            closeRegisterModal();
+            showToast('注册成功！欢迎加入 DOYDS');
+        }
+
+        // 退出登录
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUserUI();
+            showToast('已退出登录');
+            toggleUserDropdown();
+        }
+
+        // 用户下拉菜单
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // 点击其他地方关闭下拉菜单
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            const dropdown = document.getElementById('userDropdown');
+            if (!userMenu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // 发布商品
+        function showPublishModal() {
+            if (!currentUser) {
+                showToast('请先登录');
+                showLoginModal();
+                return;
+            }
+            document.getElementById('publishModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePublishModal() {
+            document.getElementById('publishModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            // 清空表单
+            document.getElementById('publishModal').querySelector('form').reset();
+            document.getElementById('imagePreviewContainer').innerHTML = `
+                <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2"></i>
+                <p class="text-gray-500">点击或拖拽上传图片</p>
+                <p class="text-gray-400 text-sm">支持 JPG、PNG 格式</p>
+            `;
+        }
+
+        // 图片预览
+        function handleImagePreview(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreviewContainer').innerHTML = `
+                        <img src="${e.target.result}" class="max-h-40 mx-auto rounded-lg">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handlePublish(event) {
+            event.preventDefault();
+            
+            const newProduct = {
+                id: Date.now(),
+                title: document.getElementById('productTitle').value,
+                category: document.getElementById('productCategory').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                originalPrice: parseFloat(document.getElementById('productOriginalPrice').value) || null,
+                condition: document.getElementById('productCondition').value,
+                description: document.getElementById('productDescription').value,
+                image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
+                seller: currentUser.name,
+                sellerAvatar: currentUser.avatar,
+                createdAt: Date.now(),
+                favorites: 0
+            };
+            
+            products.unshift(newProduct);
+            renderProducts();
+            closePublishModal();
+            showToast('商品发布成功！');
+        }
+
+        // 联系卖家
+        let currentContactProduct = null;
+        
+        function showContactModal(productId) {
+            currentContactProduct = products.find(p => p.id === productId);
+            if (!currentUser) {
+                showToast('请先登录');
+                showLoginModal();
+                return;
+            }
+            document.getElementById('contactProductName').textContent = currentContactProduct.title;
+            document.getElementById('contactModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            document.getElementById('contactMessage').value = '';
+        }
+
+        function handleContact(event) {
+            event.preventDefault();
+            showToast('消息已发送给卖家');
+            closeContactModal();
+        }
+
+        // 返回首页
+        function goHome() {
+            currentCategory = 'all';
+            document.getElementById('searchInput').value = '';
+            filterByCategory('all');
+            renderProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 个人中心（模拟）
+        function showProfile() {
+            showToast('个人中心功能开发中...');
+            toggleUserDropdown();
+        }
+
+        // 我的商品（模拟）
+        function showMyProducts() {
+            showToast('我的商品功能开发中...');
+            toggleUserDropdown();
+        }
+
+        // ==================== 支付宝支付功能 ====================
+        let currentPayProduct = null;
+
+        function showAlipayModal(productId) {
+            currentPayProduct = products.find(p => p.id === productId);
+            if (!currentUser) {
+                showToast('请先登录');
+                showLoginModal();
+                return;
+            }
+            
+            document.getElementById('payProductName').textContent = currentPayProduct.title;
+            document.getElementById('payProductTitle').textContent = currentPayProduct.title;
+            document.getElementById('paySellerName').textContent = currentPayProduct.seller;
+            document.getElementById('payAmount').textContent = '¥' + currentPayProduct.price;
+            
+            document.getElementById('alipayModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAlipayModal() {
+            document.getElementById('alipayModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            currentPayProduct = null;
+        }
+
+        function processAlipayPayment() {
+            if (!currentPayProduct) return;
+
+            // 模拟支付宝支付流程
+            const payMethod = document.querySelector('input[name="payMethod"]:checked').value;
+            const orderNumber = 'DOYDS' + Date.now();
+            
+            // 显示支付成功弹窗
+            document.getElementById('orderNumber').textContent = orderNumber;
+            closeAlipayModal();
+            document.getElementById('paySuccessModal').classList.remove('hidden');
+            
+            // 模拟发送通知给卖家
+            showToast('支付成功！订单号: ' + orderNumber);
+        }
+
+        function closePaySuccessModal() {
+            document.getElementById('paySuccessModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            currentPayProduct = null;
+        }
+    </script>
+</body>
+</html>
