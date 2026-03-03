@@ -456,6 +456,32 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 联系方式 -->
+                        <div class="md:col-span-2 mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">
+                                联系方式 * <span class="text-gray-400 font-normal">(至少填写一种，方便买家联系您)</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
+                                    <i class="fab fa-weixin text-green-500 mr-2"></i>
+                                    <input type="text" id="contactWechat" class="flex-1 outline-none text-sm" placeholder="微信号">
+                                </div>
+                                <div class="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
+                                    <i class="fab fa-qq text-blue-500 mr-2"></i>
+                                    <input type="text" id="contactQQ" class="flex-1 outline-none text-sm" placeholder="QQ号">
+                                </div>
+                                <div class="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
+                                    <i class="fas fa-phone text-gray-600 mr-2"></i>
+                                    <input type="tel" id="contactPhone" class="flex-1 outline-none text-sm" placeholder="手机号">
+                                </div>
+                                <div class="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
+                                    <i class="fas fa-envelope text-red-500 mr-2"></i>
+                                    <input type="email" id="contactEmail" class="flex-1 outline-none text-sm" placeholder="邮箱">
+                                </div>
+                            </div>
+                            <p id="contactError" class="text-red-500 text-xs mt-1 hidden">请至少填写一种联系方式</p>
+                        </div>
                     </div>
                     
                     <button type="submit" class="w-full bg-primary-500 text-white py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">
@@ -923,52 +949,14 @@
                 </div>
                 
                 <!-- 联系方式列表 -->
-                <div class="space-y-3 mb-6">
-                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fab fa-weixin text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-800 block">微信</span>
-                                <span id="sellerWechat" class="text-gray-500 text-sm">点击复制</span>
-                            </div>
-                        </div>
-                        <button onclick="copyToClipboard('sellerWechat')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
-                            <i class="fas fa-copy mr-1"></i> 复制
-                        </button>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fab fa-alipay text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-800 block">支付宝</span>
-                                <span id="sellerAlipay" class="text-gray-500 text-sm">点击复制</span>
-                            </div>
-                        </div>
-                        <button onclick="copyToClipboard('sellerAlipay')" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
-                            <i class="fas fa-copy mr-1"></i> 复制
-                        </button>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-200">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-phone text-white"></i>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-800 block">手机号</span>
-                                <span id="sellerPhone" class="text-gray-500 text-sm">点击复制</span>
-                            </div>
-                        </div>
-                        <button onclick="copyToClipboard('sellerPhone')" class="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
-                            <i class="fas fa-copy mr-1"></i> 复制
-                        </button>
-                    </div>
+                <div id="contactList" class="space-y-3 mb-6">
+                    <!-- 动态填充 -->
                 </div>
+                
+                <!-- 快捷聊天按钮 -->
+                <button id="quickChatBtn" onclick="quickChatFromContact()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all mb-3">
+                    <i class="fas fa-comment mr-2"></i>私信聊天
+                </button>
                 
                 <!-- 交易提示 -->
                 <div class="bg-yellow-50 rounded-lg p-4 mb-4">
@@ -981,6 +969,52 @@
                 <button onclick="closeSellerContact()" class="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                     关闭
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天弹窗 -->
+    <div id="chatModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeChatModal()"></div>
+        <div class="relative flex items-end justify-end p-4 h-screen">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md h-[600px] flex flex-col fade-in">
+                <!-- 聊天头部 -->
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img id="chatTargetAvatar" src="" class="w-10 h-10 rounded-full mr-3 border-2 border-white">
+                        <div>
+                            <h3 id="chatTargetName" class="font-bold"></h3>
+                            <p id="chatTargetProduct" class="text-xs text-blue-100"></p>
+                        </div>
+                    </div>
+                    <button onclick="closeChatModal()" class="text-white hover:text-blue-100">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 聊天记录 -->
+                <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                    <!-- 聊天消息动态填充 -->
+                </div>
+                
+                <!-- 快捷语 -->
+                <div class="px-4 py-2 bg-gray-100 flex gap-2 overflow-x-auto">
+                    <button onclick="insertQuickMessage('您好，请问这件商品还在吗？')" class="text-xs bg-white px-3 py-1 rounded-full whitespace-nowrap hover:bg-gray-200">您好，还在吗？</button>
+                    <button onclick="insertQuickMessage('可以便宜一点吗？')" class="text-xs bg-white px-3 py-1 rounded-full whitespace-nowrap hover:bg-gray-200">便宜点？</button>
+                    <button onclick="insertQuickMessage('可以面交吗？')" class="text-xs bg-white px-3 py-1 rounded-full whitespace-nowrap hover:bg-gray-200">面交？</button>
+                </div>
+                
+                <!-- 发送消息 -->
+                <div class="p-4 border-t bg-white rounded-b-2xl">
+                    <div class="flex gap-2">
+                        <input type="text" id="chatInput" placeholder="输入消息..." 
+                            class="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onkeypress="handleChatKeypress(event)">
+                        <button onclick="sendMessage()" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1314,6 +1348,7 @@
         // 用户数据
         let currentUser = null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let products = JSON.parse(localStorage.getItem('products')) || [];
         let currentCategory = null;
         let currentSubCategory = null;
 
@@ -1517,15 +1552,30 @@
                                     <img src="${product.sellerAvatar}" class="w-6 h-6 rounded-full mr-2">
                                     <span class="text-sm text-gray-600">${product.seller}</span>
                                 </div>
-                                <div class="flex space-x-2">
-                                    <button onclick="showSellerContact(${product.id})" class="text-green-600 hover:text-green-700 text-sm font-medium">
-                                        <i class="fas fa-phone mr-1"></i> 联系
+                                <div class="flex space-x-1">
+                                    <button onclick="openChat(${product.id})" class="text-blue-600 hover:text-blue-700 text-xs font-medium px-2 py-1 rounded-lg hover:bg-blue-50" title="私信聊天">
+                                        <i class="fas fa-comment mr-1"></i>聊天
                                     </button>
-                                    <button onclick="showPaymentModal(${product.id})" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium px-3 py-1 rounded-full transition-all">
-                                        <i class="fas fa-shopping-cart mr-1"></i> 购买
+                                    <button onclick="showSellerContact(${product.id})" class="text-green-600 hover:text-green-700 text-xs font-medium px-2 py-1 rounded-lg hover:bg-green-50" title="查看联系方式">
+                                        <i class="fas fa-phone mr-1"></i>联系
+                                    </button>
+                                    <button onclick="showPaymentModal(${product.id})" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-medium px-3 py-1 rounded-full transition-all">
+                                        <i class="fas fa-shopping-cart mr-1"></i>购买
                                     </button>
                                 </div>
                             </div>
+                            <!-- 联系方式快捷显示 -->
+                            ${(product.contact && (product.contact.wechat || product.contact.qq || product.contact.phone || product.contact.email)) ? `
+                            <div class="mt-3 pt-3 border-t border-dashed border-gray-200">
+                                <p class="text-xs text-gray-400 mb-2">联系方式：</p>
+                                <div class="flex flex-wrap gap-1">
+                                    ${product.contact.wechat ? `<span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded"><i class="fab fa-weixin mr-1"></i>${product.contact.wechat}</span>` : ''}
+                                    ${product.contact.qq ? `<span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded"><i class="fab fa-qq mr-1"></i>${product.contact.qq}</span>` : ''}
+                                    ${product.contact.phone ? `<span class="text-xs bg-gray-50 text-gray-600 px-2 py-0.5 rounded"><i class="fas fa-phone mr-1"></i>${product.contact.phone}</span>` : ''}
+                                    ${product.contact.email ? `<span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded"><i class="fas fa-envelope mr-1"></i>${product.contact.email}</span>` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -1767,6 +1817,26 @@
         function handlePublish(event) {
             event.preventDefault();
             
+            // 验证联系方式（至少填写一种）
+            const wechat = document.getElementById('contactWechat').value.trim();
+            const qq = document.getElementById('contactQQ').value.trim();
+            const phone = document.getElementById('contactPhone').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            
+            if (!wechat && !qq && !phone && !email) {
+                document.getElementById('contactError').classList.remove('hidden');
+                showToast('请至少填写一种联系方式');
+                return;
+            }
+            document.getElementById('contactError').classList.add('hidden');
+            
+            // 处理图片
+            let productImage = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop';
+            const imagePreview = document.querySelector('#imagePreviewContainer img');
+            if (imagePreview) {
+                productImage = imagePreview.src;
+            }
+            
             const newProduct = {
                 id: Date.now(),
                 title: document.getElementById('productTitle').value,
@@ -1775,16 +1845,32 @@
                 originalPrice: parseFloat(document.getElementById('productOriginalPrice').value) || null,
                 condition: document.getElementById('productCondition').value,
                 description: document.getElementById('productDescription').value,
-                image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
+                image: productImage,
                 seller: currentUser.name,
                 sellerAvatar: currentUser.avatar,
+                sellerId: currentUser.email,
                 createdAt: Date.now(),
-                favorites: 0
+                favorites: 0,
+                // 联系方式
+                contact: {
+                    wechat: wechat,
+                    qq: qq,
+                    phone: phone,
+                    email: email
+                }
             };
             
+            // 保存到本地存储
             products.unshift(newProduct);
+            localStorage.setItem('products', JSON.stringify(products));
+            
             renderProducts();
             closePublishModal();
+            // 重置表单
+            document.getElementById('contactWechat').value = '';
+            document.getElementById('contactQQ').value = '';
+            document.getElementById('contactPhone').value = '';
+            document.getElementById('contactEmail').value = '';
             showToast('商品发布成功！');
         }
 
@@ -2221,27 +2307,93 @@
             document.getElementById('sellerContactName').textContent = currentSellerProduct.seller;
             document.getElementById('sellerContactProduct').textContent = '商品: ' + currentSellerProduct.title;
             
-            // 模拟卖家联系方式（实际应从数据库获取）
-            const sellerContacts = {
-                '数码达人': { wechat: 'digital_master888', alipay: '138****5678', phone: '138****5678' },
-                '书虫爱好者': { wechat: 'bookworm_2024', alipay: '139****1234', phone: '139****1234' },
-                '运动男孩': { wechat: 'sports_boy666', alipay: '136****9999', phone: '136****9999' },
-                '家居达人': { wechat: 'home_style', alipay: '135****4567', phone: '135****4567' },
-                '果粉小王': { wechat: 'apple_fan2024', alipay: '137****8888', phone: '137****8888' },
-                '音乐发烧友': { wechat: 'music_lover', alipay: '133****7777', phone: '133****7777' },
-                '考研学姐': { wechat: 'study_hard2024', alipay: '131****6666', phone: '131****6666' },
-                '时尚达人': { wechat: 'fashion_star', alipay: '132****5555', phone: '132****5555' },
-                '摄影大师': { wechat: 'photo_master', alipay: '130****4444', phone: '130****4444' },
-                '游戏玩家': { wechat: 'gamer_pro', alipay: '159****3333', phone: '159****3333' },
-                '美妆达人': { wechat: 'beauty_girl', alipay: '158****2222', phone: '158****2222' },
-                '健身爱好者': { wechat: 'fitness_fan', alipay: '157****1111', phone: '157****1111' }
-            };
+            // 使用商品实际的联系方式
+            const contact = currentSellerProduct.contact || {};
+            const contactList = document.getElementById('contactList');
             
-            const contact = sellerContacts[currentSellerProduct.seller] || { wechat: '未设置', alipay: '未设置', phone: '未设置' };
+            let contactsHTML = '';
             
-            document.getElementById('sellerWechat').textContent = contact.wechat;
-            document.getElementById('sellerAlipay').textContent = contact.alipay;
-            document.getElementById('sellerPhone').textContent = contact.phone;
+            if (contact.wechat) {
+                contactsHTML += `
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fab fa-weixin text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">微信</span>
+                                <span class="text-gray-500 text-sm">${contact.wechat}</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboardText('${contact.wechat}')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (contact.qq) {
+                contactsHTML += `
+                    <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fab fa-qq text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">QQ</span>
+                                <span class="text-gray-500 text-sm">${contact.qq}</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboardText('${contact.qq}')" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (contact.phone) {
+                contactsHTML += `
+                    <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-phone text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">手机号</span>
+                                <span class="text-gray-500 text-sm">${contact.phone}</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboardText('${contact.phone}')" class="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (contact.email) {
+                contactsHTML += `
+                    <div class="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-envelope text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-800 block">邮箱</span>
+                                <span class="text-gray-500 text-sm">${contact.email}</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboardText('${contact.email}')" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
+                            <i class="fas fa-copy mr-1"></i> 复制
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (!contactsHTML) {
+                contactsHTML = '<p class="text-gray-500 text-center py-4">该卖家暂无联系方式</p>';
+            }
+            
+            contactList.innerHTML = contactsHTML;
             
             document.getElementById('sellerContactModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -2252,25 +2404,210 @@
             document.body.style.overflow = '';
         }
 
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
-            if (text === '未设置' || text === '点击复制') {
-                showToast('该卖家暂未设置此联系方式');
+        function copyToClipboardText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制到剪贴板');
+            }).catch(() => {
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        // 从联系方式弹窗快速发起聊天
+        function quickChatFromContact() {
+            if (currentSellerProduct) {
+                closeSellerContact();
+                openChat(currentSellerProduct.id);
+            }
+        }
+
+        // ==================== 聊天系统 ====================
+        let currentChatProduct = null;
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+
+        // 打开聊天窗口
+        function openChat(productId) {
+            currentChatProduct = products.find(p => p.id === productId);
+            if (!currentChatProduct) return;
+            
+            if (!currentUser) {
+                showToast('请先登录');
+                showLoginModal();
                 return;
             }
             
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('已复制: ' + text);
-            }).catch(() => {
-                // 降级方案
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast('已复制: ' + text);
-            });
+            // 不能和自己聊天
+            if (currentChatProduct.sellerId === currentUser.email) {
+                showToast('不能与自己发布的商品聊天');
+                return;
+            }
+            
+            // 设置聊天对象信息
+            document.getElementById('chatTargetAvatar').src = currentChatProduct.sellerAvatar;
+            document.getElementById('chatTargetName').textContent = currentChatProduct.seller;
+            document.getElementById('chatTargetProduct').textContent = '商品: ' + currentChatProduct.title;
+            
+            // 加载聊天记录
+            renderChatMessages();
+            
+            // 显示聊天弹窗
+            document.getElementById('chatModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // 滚动到底部
+            setTimeout(() => {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+
+        // 关闭聊天窗口
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            currentChatProduct = null;
+            document.getElementById('chatInput').value = '';
+        }
+
+        // 渲染聊天消息
+        function renderChatMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            const chatKey = getChatKey();
+            const messages = chatHistory[chatKey] || [];
+            
+            if (messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-comments text-blue-500 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm">暂无消息记录</p>
+                        <p class="text-gray-400 text-xs mt-1">发送消息开始对话</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            chatMessages.innerHTML = messages.map(msg => {
+                const isMe = msg.sender === 'me';
+                return `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                        <div class="flex items-end ${isMe ? 'flex-row-reverse' : ''}">
+                            <img src="${isMe ? currentUser.avatar : currentChatProduct.sellerAvatar}" 
+                                class="w-8 h-8 rounded-full mx-1">
+                            <div class="max-w-[70%] ${isMe ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200'} 
+                                        rounded-2xl px-4 py-2 ${isMe ? 'rounded-br-md' : 'rounded-bl-md'} shadow-sm">
+                                <p class="text-sm">${msg.text}</p>
+                                <p class="text-xs ${isMe ? 'text-blue-100' : 'text-gray-400'} mt-1">${msg.time}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取聊天Key
+        function getChatKey() {
+            const userId = currentUser.email;
+            const sellerId = currentChatProduct.sellerId;
+            const productId = currentChatProduct.id;
+            return [userId, sellerId, productId].sort().join('_');
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text || !currentChatProduct) return;
+            
+            const chatKey = getChatKey();
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const newMessage = {
+                text: text,
+                time: time,
+                sender: 'me',
+                productId: currentChatProduct.id,
+                productTitle: currentChatProduct.title,
+                timestamp: Date.now()
+            };
+            
+            if (!chatHistory[chatKey]) {
+                chatHistory[chatKey] = [];
+            }
+            chatHistory[chatKey].push(newMessage);
+            
+            // 保存到本地存储
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+            
+            // 清空输入框
+            input.value = '';
+            
+            // 重新渲染消息
+            renderChatMessages();
+            
+            // 滚动到底部
+            setTimeout(() => {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+            
+            // 模拟卖家回复（延迟1-2秒）
+            setTimeout(() => {
+                simulateSellerReply();
+            }, 1000 + Math.random() * 1000);
+        }
+
+        // 模拟卖家回复
+        function simulateSellerReply() {
+            const replies = [
+                '您好，感谢您的咨询！这件商品还在的。',
+                '可以的，请问您想了解什么？',
+                '谢谢关注商品，有兴趣可以聊聊～',
+                '价格可以商量，您出什么价？',
+                '商品质量没问题，可以放心购买。',
+                '可以见面交易，你在哪个位置？',
+                '好的，我稍后回复您。',
+                '感谢咨询，请问还有什么想了解的？'
+            ];
+            
+            const randomReply = replies[Math.floor(Math.random() * replies.length)];
+            const chatKey = getChatKey();
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const replyMessage = {
+                text: randomReply,
+                time: time,
+                sender: 'seller',
+                productId: currentChatProduct.id,
+                productTitle: currentChatProduct.title,
+                timestamp: Date.now()
+            };
+            
+            chatHistory[chatKey].push(replyMessage);
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+            
+            // 如果当前正在查看这个聊天，才更新UI
+            if (currentChatProduct && document.getElementById('chatModal').classList.contains('hidden') === false) {
+                renderChatMessages();
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        // 快捷语插入
+        function insertQuickMessage(text) {
+            document.getElementById('chatInput').value = text;
+            document.getElementById('chatInput').focus();
+        }
+
+        // 键盘发送
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
         }
 
         // ==================== 订单管理系统 ====================
