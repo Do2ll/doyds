@@ -159,6 +159,12 @@ async function getUsers() {
                 'X-Master-Key': API_KEY
             }
         });
+        
+        if (!res.ok) {
+            console.error('获取用户失败:', res.status);
+            return [];
+        }
+        
         const data = await res.json();
         return data.record || [];
     } catch (error) {
@@ -192,11 +198,18 @@ async function saveUsers(users) {
 // 注册用户
 async function registerUser(name, email, password) {
     try {
-        const users = await getUsers();
+        // 确保Bins已初始化
+        if (!USERS_BIN_ID) {
+            await initBins();
+        }
+        
+        let users = await getUsers();
+        if (!users) users = []; // 确保 users 是数组
+        
         console.log('当前用户列表:', users);
         
         // 检查邮箱是否已存在
-        if (users.find(u => u.email === email)) {
+        if (users.find(u => u && u.email === email)) {
             throw new Error('该邮箱已被注册');
         }
         
@@ -204,7 +217,7 @@ async function registerUser(name, email, password) {
             id: Date.now(),
             name: name,
             email: email,
-            password: password, // 实际应用中应该加密
+            password: password,
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`,
             createdAt: Date.now()
         };
@@ -230,14 +243,24 @@ async function registerUser(name, email, password) {
 // 登录用户
 async function loginUser(email, password) {
     try {
-        const users = await getUsers();
+        let users = await getUsers();
+        if (!users) users = []; // 确保 users 是数组
+        
         console.log('用户列表:', users);
         
-        const user = users.find(u => u.email === email && u.password === password);
+        const user = users.find(u => u && u.email === email && u.password === password);
         
         if (!user) {
             throw new Error('邮箱或密码错误，或账户不存在，请先注册');
         }
+        
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    } catch (error) {
+        console.error('登录错误:', error);
+        throw error;
+    }
+}
         
         const { password: _, ...userWithoutPassword } = user;
         return userWithoutPassword;
