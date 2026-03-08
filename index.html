@@ -1036,14 +1036,8 @@
         </div>
     </footer>
 
-    <!-- Supabase 客户端（暂时禁用，使用本地存储）
-    <script>
-        // Supabase 配置 - 已禁用
-        // const SUPABASE_URL = 'https://hzexfwvuzemzhckcvtag.supabase.co';
-        // const SUPABASE_KEY = 'xxx';
-        // let supabase = null;
-    </script>
-    -->
+    <!-- 后端服务 -->
+    <script src="js/backend.js"></script>
 
     <script>
         // ==================== 分类数据结构（闲鱼风格） ====================
@@ -1213,29 +1207,33 @@
 
         // 页面初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 加载本地存储的数据
+            // 初始化后端
+            initBins().then(() => {
+                // 从后端加载商品
+                loadProductsFromBackend();
+            });
+            
+            // 加载本地存储的收藏
             try {
                 favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                products = JSON.parse(localStorage.getItem('products')) || [];
             } catch (e) {
                 favorites = [];
-                products = [];
             }
             
             renderCategoryGrid();
-            renderProducts();
             updateFavoritesCount();
             checkLoginStatus();
         });
 
-        // 从本地存储加载商品
-        function loadProductsFromLocalStorage() {
-            try {
-                products = JSON.parse(localStorage.getItem('products')) || [];
-            } catch (e) {
-                products = [];
-            }
+        // 从后端加载商品
+        async function loadProductsFromBackend() {
+            products = await getProducts();
             renderProducts();
+        }
+
+        // 从本地存储加载商品（保留兼容）
+        function loadProductsFromLocalStorage() {
+            loadProductsFromBackend();
         }
 
         // 检查登录状态
@@ -1576,18 +1574,19 @@
         function handleLogin(event) {
             event.preventDefault();
             const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
-            // 模拟登录（本地存储）
-            currentUser = {
-                name: email.split('@')[0],
-                email: email,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=10b981&color=fff`
-            };
-
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUserUI();
-            closeLoginModal();
-            showToast('登录成功！欢迎回来');
+            // 后端登录
+            showToast('正在登录...');
+            loginUser(email, password).then(user => {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserUI();
+                closeLoginModal();
+                showToast('登录成功！欢迎回来');
+            }).catch(err => {
+                showToast(err.message);
+            });
         }
 
         // 注册相关
@@ -1618,17 +1617,17 @@
                 return;
             }
 
-            // 模拟注册（本地存储）
-            currentUser = {
-                name: name,
-                email: email,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`
-            };
-
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUserUI();
-            closeRegisterModal();
-            showToast('注册成功！欢迎加入 DOYDS');
+            // 后端注册
+            showToast('正在注册...');
+            registerUser(name, email, password).then(user => {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserUI();
+                closeRegisterModal();
+                showToast('注册成功！欢迎加入 DOYDS');
+            }).catch(err => {
+                showToast(err.message);
+            });
         }
 
         // 退出登录
@@ -1717,7 +1716,6 @@
             const productImage = imagePreview.src;
 
             const newProduct = {
-                id: Date.now(),
                 title: document.getElementById('productTitle').value,
                 category: document.getElementById('productCategory').value,
                 price: parseFloat(document.getElementById('productPrice').value),
@@ -1728,7 +1726,6 @@
                 seller: currentUser.name,
                 sellerAvatar: currentUser.avatar,
                 sellerId: currentUser.email,
-                createdAt: Date.now(),
                 favorites: 0,
                 // 联系方式
                 contact: {
@@ -1739,18 +1736,20 @@
                 }
             };
 
-            // 保存到本地存储
-            products.unshift(newProduct);
-            localStorage.setItem('products', JSON.stringify(products));
-
-            renderProducts();
-            closePublishModal();
-            // 重置表单
-            document.getElementById('contactWechat').value = '';
-            document.getElementById('contactQQ').value = '';
-            document.getElementById('contactPhone').value = '';
-            document.getElementById('contactEmail').value = '';
-            showToast('商品发布成功！');
+            // 保存到后端
+            showToast('正在发布...');
+            addProduct(newProduct).then(() => {
+                loadProductsFromBackend();
+                closePublishModal();
+                // 重置表单
+                document.getElementById('contactWechat').value = '';
+                document.getElementById('contactQQ').value = '';
+                document.getElementById('contactPhone').value = '';
+                document.getElementById('contactEmail').value = '';
+                showToast('商品发布成功！');
+            }).catch(err => {
+                showToast('发布失败: ' + err.message);
+            });
         }
 
         // 联系卖家
@@ -2001,7 +2000,7 @@
                                         <button onclick="editProduct(${product.id})" class="flex-1 bg-blue-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
                                             <i class="fas fa-edit mr-1"></i>编辑
                                         </button>
-                                        <button onclick="deleteProduct(${product.id})" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
+                                        <button onclick="deleteMyProduct(${product.id})" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
                                             <i class="fas fa-trash mr-1"></i>删除
                                         </button>
                                     </div>
@@ -2027,14 +2026,18 @@
         }
 
         // 删除商品
-        function deleteProduct(productId) {
+        function deleteMyProduct(productId) {
             if (!confirm('确定要删除这个商品吗？')) return;
-            
-            products = products.filter(p => p.id !== productId);
-            localStorage.setItem('products', JSON.stringify(products));
-            renderProducts();
-            showMyProducts(); // 刷新列表
-            showToast('商品已删除');
+
+            // 调用后端API
+            (async () => {
+                const products = await getProducts();
+                const filtered = products.filter(p => p.id !== productId);
+                await saveProducts(filtered);
+                loadProductsFromBackend();
+                showMyProducts(); // 刷新列表
+                showToast('商品已删除');
+            })();
         }
 
         // 编辑商品
