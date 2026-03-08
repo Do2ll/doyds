@@ -1211,12 +1211,21 @@
         let currentCategory = null;
         let currentSubCategory = null;
 
-        // 页面初始化 - 从后端加载数据
-        document.addEventListener('DOMContentLoaded', async () => {
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载本地存储的数据
+            try {
+                favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                products = JSON.parse(localStorage.getItem('products')) || [];
+            } catch (e) {
+                favorites = [];
+                products = [];
+            }
+            
             renderCategoryGrid();
+            renderProducts();
             updateFavoritesCount();
-            await checkAuth(); // 检查 Supabase 登录状态
-            await loadProductsFromLocalStorage(); // 从后端加载商品
+            checkLoginStatus();
         });
 
         // 从本地存储加载商品
@@ -1229,25 +1238,17 @@
             renderProducts();
         }
 
-        // 从后端加载商品（暂时禁用）
-        async function loadProductsFromBackend() {
-            // 暂时使用本地存储
-            loadProductsFromLocalStorage();
-        }
-
-        // 页面初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCategoryGrid();
-            loadProductsFromLocalStorage();
-            updateFavoritesCount();
-            checkLoginStatus();
-        });
-
-        // 更新用户UI
-                products = [];
-                renderProducts();
+        // 检查登录状态
+        function checkLoginStatus() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                currentUser = JSON.parse(user);
+                updateUserUI();
             }
         }
+
+        // 更新用户UI
+        function updateUserUI() {
 
         // 检查登录状态（本地存储版本）
         function checkLoginStatus() {
