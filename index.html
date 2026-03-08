@@ -1585,7 +1585,8 @@
                 closeLoginModal();
                 showToast('登录成功！欢迎回来');
             }).catch(err => {
-                showToast(err.message);
+                showToast(err.message || '登录失败，请检查网络');
+                console.error('登录失败:', err);
             });
         }
 
@@ -1626,7 +1627,8 @@
                 closeRegisterModal();
                 showToast('注册成功！欢迎加入 DOYDS');
             }).catch(err => {
-                showToast(err.message);
+                showToast(err.message || '注册失败，请检查网络');
+                console.error('注册失败:', err);
             });
         }
 

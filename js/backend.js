@@ -191,41 +191,60 @@ async function saveUsers(users) {
 
 // 注册用户
 async function registerUser(name, email, password) {
-    const users = await getUsers();
-    
-    // 检查邮箱是否已存在
-    if (users.find(u => u.email === email)) {
-        throw new Error('该邮箱已被注册');
+    try {
+        const users = await getUsers();
+        console.log('当前用户列表:', users);
+        
+        // 检查邮箱是否已存在
+        if (users.find(u => u.email === email)) {
+            throw new Error('该邮箱已被注册');
+        }
+        
+        const newUser = {
+            id: Date.now(),
+            name: name,
+            email: email,
+            password: password, // 实际应用中应该加密
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`,
+            createdAt: Date.now()
+        };
+        
+        users.push(newUser);
+        const saved = await saveUsers(users);
+        
+        if (!saved) {
+            throw new Error('注册失败，请稍后重试');
+        }
+        
+        console.log('注册成功:', newUser);
+        
+        // 返回不含密码的用户信息
+        const { password: _, ...userWithoutPassword } = newUser;
+        return userWithoutPassword;
+    } catch (error) {
+        console.error('注册错误:', error);
+        throw error;
     }
-    
-    const newUser = {
-        id: Date.now(),
-        name: name,
-        email: email,
-        password: password, // 实际应用中应该加密
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`,
-        createdAt: Date.now()
-    };
-    
-    users.push(newUser);
-    await saveUsers(users);
-    
-    // 返回不含密码的用户信息
-    const { password: _, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
 }
 
 // 登录用户
 async function loginUser(email, password) {
-    const users = await getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (!user) {
-        throw new Error('邮箱或密码错误');
+    try {
+        const users = await getUsers();
+        console.log('用户列表:', users);
+        
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (!user) {
+            throw new Error('邮箱或密码错误，或账户不存在，请先注册');
+        }
+        
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    } catch (error) {
+        console.error('登录错误:', error);
+        throw error;
     }
-    
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
 }
 
 // ==================== 订单操作 ====================
