@@ -1247,15 +1247,6 @@
             }
         }
 
-        // 检查登录状态（本地存储版本）
-        function checkLoginStatus() {
-            const user = localStorage.getItem('currentUser');
-            if (user) {
-                currentUser = JSON.parse(user);
-                updateUserUI();
-            }
-        }
-
         // 更新用户UI
         function updateUserUI() {
             const userArea = document.getElementById('userArea');
