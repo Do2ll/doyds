@@ -1,0 +1,12 @@
+{
+  "name": "doyds-website",
+  "version": "1.0.0",
+  "description": "DOYDS 二手交易平台",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1"
+  }
+}
