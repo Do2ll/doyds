@@ -204,13 +204,24 @@ async function registerUser(name, email, password) {
         }
         
         let users = await getUsers();
-        if (!users) users = []; // 确保 users 是数组
+        // 确保 users 是有效数组
+        if (!Array.isArray(users)) {
+            users = [];
+        }
         
         console.log('当前用户列表:', users);
         
-        // 检查邮箱是否已存在
-        if (users.find(u => u && u.email === email)) {
-            throw new Error('该邮箱已被注册');
+        // 安全检查 - 检查邮箱是否已存在
+        try {
+            const existingUser = users.find(u => u && u.email === email);
+            if (existingUser) {
+                throw new Error('该邮箱已被注册');
+            }
+        } catch (findError) {
+            if (findError.message === '该邮箱已被注册') {
+                throw findError;
+            }
+            console.log('检查用户时出错:', findError);
         }
         
         const newUser = {
