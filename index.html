@@ -1576,17 +1576,16 @@
             const password = document.getElementById('loginPassword').value;
 
             // 后端登录
-            showToast('正在登录...');
-            loginUser(email, password).then(user => {
+            try {
+                const user = loginUser(email, password);
                 currentUser = user;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUserUI();
                 closeLoginModal();
                 showToast('登录成功！欢迎回来');
-            }).catch(err => {
-                showToast(err.message || '登录失败，请检查网络');
-                console.error('登录失败:', err);
-            });
+            } catch (err) {
+                showToast(err.message || '登录失败');
+            }
         }
 
         // 注册相关
@@ -1618,17 +1617,17 @@
             }
 
             // 后端注册
-            showToast('正在注册...');
-            registerUser(name, email, password).then(user => {
+            try {
+                const user = registerUser(name, email, password);
                 currentUser = user;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUserUI();
                 closeRegisterModal();
                 showToast('注册成功！欢迎加入 DOYDS');
-            }).catch(err => {
-                showToast(err.message || '注册失败，请检查网络');
-                console.error('注册失败:', err);
-            });
+            } catch (err) {
+                showToast(err.message || '注册失败');
+            }
+        }
         }
 
         // 退出登录

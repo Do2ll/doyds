@@ -5,8 +5,12 @@
 
 // 获取所有用户
 function getUsers() {
-    const users = localStorage.getItem('doyds_users');
-    return users ? JSON.parse(users) : [];
+    try {
+        const users = localStorage.getItem('doyds_users');
+        return users ? JSON.parse(users) : [];
+    } catch (e) {
+        return [];
+    }
 }
 
 // 保存所有用户
@@ -20,7 +24,8 @@ function registerUser(name, email, password) {
     const users = getUsers();
     
     // 检查邮箱是否已存在
-    if (users.find(u => u.email === email)) {
+    const existing = users.find(u => u.email === email);
+    if (existing) {
         throw new Error('该邮箱已被注册');
     }
     
@@ -29,7 +34,7 @@ function registerUser(name, email, password) {
         name: name,
         email: email,
         password: password,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`,
+        avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=10b981&color=fff',
         createdAt: Date.now()
     };
     
@@ -37,8 +42,14 @@ function registerUser(name, email, password) {
     saveUsers(users);
     
     // 返回不含密码的用户信息
-    const { password: _, ...userWithoutPassword } = newUser;
-    return Promise.resolve(userWithoutPassword);
+    const result = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        avatar: newUser.avatar,
+        createdAt: newUser.createdAt
+    };
+    return result;
 }
 
 // 登录用户
@@ -50,16 +61,25 @@ function loginUser(email, password) {
         throw new Error('邮箱或密码错误');
     }
     
-    const { password: _, ...userWithoutPassword } = user;
-    return Promise.resolve(userWithoutPassword);
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        createdAt: user.createdAt
+    };
 }
 
 // ==================== 商品操作 ====================
 
 // 获取所有商品
 function getProducts() {
-    const products = localStorage.getItem('doyds_products');
-    return products ? JSON.parse(products) : [];
+    try {
+        const products = localStorage.getItem('doyds_products');
+        return products ? JSON.parse(products) : [];
+    } catch (e) {
+        return [];
+    }
 }
 
 // 保存所有商品
@@ -75,7 +95,7 @@ function addProduct(product) {
     product.createdAt = Date.now();
     products.unshift(product);
     saveProducts(products);
-    return Promise.resolve(product);
+    return product;
 }
 
 // 删除商品
@@ -83,15 +103,19 @@ function deleteProduct(productId) {
     const products = getProducts();
     const filtered = products.filter(p => p.id !== productId);
     saveProducts(filtered);
-    return Promise.resolve(true);
+    return true;
 }
 
 // ==================== 订单操作 ====================
 
 // 获取所有订单
 function getOrders() {
-    const orders = localStorage.getItem('doyds_orders');
-    return orders ? JSON.parse(orders) : [];
+    try {
+        const orders = localStorage.getItem('doyds_orders');
+        return orders ? JSON.parse(orders) : [];
+    } catch (e) {
+        return [];
+    }
 }
 
 // 保存所有订单
@@ -107,7 +131,7 @@ function addOrder(order) {
     order.createdAt = Date.now();
     orders.unshift(order);
     saveOrders(orders);
-    return Promise.resolve(order);
+    return order;
 }
 
 // 更新订单状态
@@ -118,9 +142,9 @@ function updateOrderStatus(orderId, newStatus) {
         orders[index].status = newStatus;
         orders[index].updatedAt = Date.now();
         saveOrders(orders);
-        return Promise.resolve(orders[index]);
+        return orders[index];
     }
-    return Promise.resolve(null);
+    return null;
 }
 
 // 初始化Bins（空函数，保持兼容）
