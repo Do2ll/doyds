@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
         tailwind.config = {
@@ -1034,6 +1036,9 @@
         </div>
     </footer>
 
+    <!-- Supabase 客户端 -->
+    <script src="js/supabase-client.js"></script>
+
     <script>
         // ==================== 分类数据结构（闲鱼风格） ====================
         const categories = [
@@ -1193,43 +1198,76 @@
             }
         ];
 
-        // 初始化（清理缓存，不加载测试商品）
-        document.addEventListener('DOMContentLoaded', () => {
-            // 清理localStorage中可能存在的测试商品缓存
-            localStorage.removeItem('products');
-            renderCategoryGrid();
-            renderProducts();
-            updateFavoritesCount();
-            checkLoginStatus();
-        });
-
         // 用户数据
         let currentUser = null;
         let favorites = [];
-        try {
-            favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        } catch (e) {
-            favorites = [];
-            console.log('favorites数据解析错误，已重置');
-        }
-
-        // 商品数据（始终为空，不加载任何测试商品）
         let products = [];
-        try {
-            products = JSON.parse(localStorage.getItem('products')) || [];
-        } catch (e) {
-            products = [];
-            console.log('products数据解析错误，已重置');
-        }
         let currentCategory = null;
         let currentSubCategory = null;
 
-        // 检查登录状态
-        function checkLoginStatus() {
-            const user = localStorage.getItem('currentUser');
-            if (user) {
-                currentUser = JSON.parse(user);
+        // 页面初始化 - 从后端加载数据
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderCategoryGrid();
+            updateFavoritesCount();
+            await checkAuth(); // 检查 Supabase 登录状态
+            await loadProductsFromBackend(); // 从后端加载商品
+        });
+
+        // 从后端加载商品
+        async function loadProductsFromBackend() {
+            try {
+                const backendProducts = await fetchProducts(currentCategory, document.getElementById('searchInput')?.value);
+                // 转换后端字段名为前端兼容格式
+                products = backendProducts.map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    description: p.description,
+                    price: parseFloat(p.price),
+                    originalPrice: p.original_price ? parseFloat(p.original_price) : null,
+                    category: p.category,
+                    condition: p.condition,
+                    image: p.image_url,
+                    sellerId: p.seller_id,
+                    seller: p.seller_name,
+                    sellerAvatar: p.seller_avatar,
+                    contact: p.contact,
+                    createdAt: new Date(p.created_at).getTime(),
+                    favorites: p.favorites_count || 0
+                }));
+                renderProducts();
+            } catch (error) {
+                console.error('加载商品失败:', error);
+                products = [];
+                renderProducts();
+            }
+        }
+
+        // 检查登录状态（使用 Supabase）
+        async function checkAuth() {
+            // 这个函数在 supabase-client.js 中定义
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = {
+                    id: session.user.id,
+                    name: session.user.email.split('@')[0],
+                    email: session.user.email,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.email.split('@')[0])}&background=10b981&color=fff`
+                };
                 updateUserUI();
+                // 加载收藏
+                loadFavoritesFromBackend();
+            }
+        }
+
+        // 从后端加载收藏
+        async function loadFavoritesFromBackend() {
+            if (currentUser) {
+                try {
+                    favorites = await fetchFavorites();
+                    updateFavoritesCount();
+                } catch (error) {
+                    console.error('加载收藏失败:', error);
+                }
             }
         }
 
@@ -1269,14 +1307,14 @@
         function selectCategory(categoryId) {
             currentCategory = categoryId;
             currentSubCategory = null;
-            
+
             const category = categories.find(c => c.id === categoryId);
             if (!category) return;
-            
+
             // 显示二级分类
             document.getElementById('currentCategoryTitle').textContent = category.name + ' · 选择细分类';
             document.getElementById('subCategorySection').classList.remove('hidden');
-            
+
             // 渲染二级分类
             const subGrid = document.getElementById('subCategoryFilters');
             subGrid.innerHTML = `
@@ -1289,8 +1327,8 @@
                     </button>
                 `).join('')}
             `;
-            
-            renderProducts();
+
+            loadProductsFromBackend(); // 从后端加载
         }
 
         // 选择二级分类
@@ -1473,13 +1511,36 @@
         // 搜索
         function handleSearch(event) {
             if (event.key === 'Enter') {
-                renderProducts();
+                loadProductsFromBackend(); // 从后端搜索
             }
         }
 
-        // 收藏功能
-        function toggleFavorite(productId) {
-            const index = favorites.indexOf(productId);
+        // 收藏功能 - 使用后端
+        async function toggleFavorite(productId) {
+            if (!currentUser) {
+                showToast('请先登录');
+                showLoginModal();
+                return;
+            }
+
+            try {
+                const isFavorited = await window.toggleFavorite(productId);
+                if (isFavorited) {
+                    favorites.push(productId);
+                    showToast('已添加到收藏');
+                } else {
+                    const index = favorites.indexOf(productId);
+                    if (index > -1) favorites.splice(index, 1);
+                    showToast('已取消收藏');
+                }
+                updateFavoritesCount();
+                renderProducts();
+                renderFavorites();
+            } catch (error) {
+                console.error('收藏失败:', error);
+                showToast('操作失败: ' + error.message);
+            }
+        }
             if (index === -1) {
                 favorites.push(productId);
                 showToast('已添加到收藏');
@@ -1562,18 +1623,24 @@
         function handleLogin(event) {
             event.preventDefault();
             const email = document.getElementById('loginEmail').value;
-            
-            // 模拟登录
-            currentUser = {
-                name: email.split('@')[0],
-                email: email,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=10b981&color=fff`
-            };
-            
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUserUI();
-            closeLoginModal();
-            showToast('登录成功！欢迎回来');
+            const password = document.getElementById('loginPassword').value;
+
+            // 使用 Supabase 登录
+            signIn(email, password).then(data => {
+                currentUser = {
+                    id: data.user.id,
+                    name: data.user.email.split('@')[0],
+                    email: data.user.email,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.email.split('@')[0])}&background=10b981&color=fff`
+                };
+                updateUserUI();
+                closeLoginModal();
+                showToast('登录成功！欢迎回来');
+                loadProductsFromBackend(); // 重新加载商品
+            }).catch(error => {
+                console.error('登录失败:', error);
+                showToast('登录失败: ' + error.message);
+            });
         }
 
         // 注册相关
@@ -1598,32 +1665,36 @@
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
+
             if (password !== confirmPassword) {
                 showToast('两次密码输入不一致');
                 return;
             }
-            
-            // 模拟注册
-            currentUser = {
-                name: name,
-                email: email,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`
-            };
-            
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUserUI();
-            closeRegisterModal();
-            showToast('注册成功！欢迎加入 DOYDS');
+
+            // 使用 Supabase 注册
+            signUp(email, password, name).then(data => {
+                showToast('注册成功！请查收邮箱验证链接');
+                closeRegisterModal();
+                // 不自动登录，等待邮箱验证
+            }).catch(error => {
+                console.error('注册失败:', error);
+                showToast('注册失败: ' + error.message);
+            });
         }
 
         // 退出登录
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            updateUserUI();
-            showToast('已退出登录');
-            toggleUserDropdown();
+        async function logout() {
+            try {
+                await signOut();
+                currentUser = null;
+                updateUserUI();
+                showToast('已退出登录');
+                toggleUserDropdown();
+                loadProductsFromBackend(); // 重新加载商品
+            } catch (error) {
+                console.error('退出失败:', error);
+                showToast('退出失败: ' + error.message);
+            }
         }
 
         // 用户下拉菜单
@@ -1678,22 +1749,22 @@
             }
         }
 
-        function handlePublish(event) {
+        async function handlePublish(event) {
             event.preventDefault();
-            
+
             // 验证联系方式（至少填写一种）
             const wechat = document.getElementById('contactWechat').value.trim();
             const qq = document.getElementById('contactQQ').value.trim();
             const phone = document.getElementById('contactPhone').value.trim();
             const email = document.getElementById('contactEmail').value.trim();
-            
+
             if (!wechat && !qq && !phone && !email) {
                 document.getElementById('contactError').classList.remove('hidden');
                 showToast('请至少填写一种联系方式');
                 return;
             }
             document.getElementById('contactError').classList.add('hidden');
-            
+
             // 验证图片（必须上传至少一张）
             const imagePreview = document.querySelector('#imagePreviewContainer img');
             if (!imagePreview) {
@@ -1701,9 +1772,8 @@
                 return;
             }
             const productImage = imagePreview.src;
-            
-            const newProduct = {
-                id: Date.now(),
+
+            const productData = {
                 title: document.getElementById('productTitle').value,
                 category: document.getElementById('productCategory').value,
                 price: parseFloat(document.getElementById('productPrice').value),
@@ -1711,12 +1781,6 @@
                 condition: document.getElementById('productCondition').value,
                 description: document.getElementById('productDescription').value,
                 image: productImage,
-                seller: currentUser.name,
-                sellerAvatar: currentUser.avatar,
-                sellerId: currentUser.email,
-                createdAt: Date.now(),
-                favorites: 0,
-                // 联系方式
                 contact: {
                     wechat: wechat,
                     qq: qq,
@@ -1724,11 +1788,24 @@
                     email: email
                 }
             };
-            
-            // 保存到本地存储
-            products.unshift(newProduct);
-            localStorage.setItem('products', JSON.stringify(products));
-            
+
+            try {
+                // 保存到后端
+                await publishProduct(productData);
+                showToast('商品发布成功！');
+                closePublishModal();
+                await loadProductsFromBackend(); // 重新加载商品列表
+
+                // 清空表单
+                document.getElementById('contactWechat').value = '';
+                document.getElementById('contactQQ').value = '';
+                document.getElementById('contactPhone').value = '';
+                document.getElementById('contactEmail').value = '';
+            } catch (error) {
+                console.error('发布失败:', error);
+                showToast('发布失败: ' + error.message);
+            }
+        }
             renderProducts();
             closePublishModal();
             // 重置表单
@@ -1772,7 +1849,7 @@
             currentSubCategory = null;
             document.getElementById('searchInput').value = '';
             document.getElementById('subCategorySection').classList.add('hidden');
-            renderProducts();
+            loadProductsFromBackend(); // 从后端加载
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
