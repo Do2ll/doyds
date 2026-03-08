@@ -1247,9 +1247,6 @@
             }
         }
 
-        // 更新用户UI
-        function updateUserUI() {
-
         // 检查登录状态（本地存储版本）
         function checkLoginStatus() {
             const user = localStorage.getItem('currentUser');
@@ -1506,20 +1503,6 @@
         // 收藏功能 - 本地存储版本
         function toggleFavorite(productId) {
             const index = favorites.indexOf(productId);
-            if (index === -1) {
-                favorites.push(productId);
-                showToast('已添加到收藏');
-            } else {
-                favorites.splice(index, 1);
-                showToast('已取消收藏');
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            updateFavoritesCount();
-            renderProducts();
-            renderFavorites();
-        }
-
-        }
             if (index === -1) {
                 favorites.push(productId);
                 showToast('已添加到收藏');
