@@ -1,22 +1,140 @@
-// JSONBin.io 后端服务
-const API_KEY = '$2a$10$i1/eRUrCkDxuwdFW9F4f6erEjUpMBJSOvZn0Tt8jqM8t6iCOKjsMe';
-const BASE_URL = 'https://api.jsonbin.io/v3';
+// 简化的本地存储后端服务（更稳定）
+// 数据存储在浏览器localStorage中
 
-// Bin IDs (首次运行后会被更新)
-let PRODUCTS_BIN_ID = null;
-let USERS_BIN_ID = null;
-let ORDERS_BIN_ID = null;
+// ==================== 用户操作 ====================
 
-// 从本地存储获取Bin IDs
-function getBinIds() {
-    PRODUCTS_BIN_ID = localStorage.getItem('productsBinId');
-    USERS_BIN_ID = localStorage.getItem('usersBinId');
-    ORDERS_BIN_ID = localStorage.getItem('ordersBinId');
+// 获取所有用户
+function getUsers() {
+    const users = localStorage.getItem('doyds_users');
+    return users ? JSON.parse(users) : [];
 }
 
-// 初始化Bins（首次使用时创建）
-async function initBins() {
-    getBinIds();
+// 保存所有用户
+function saveUsers(users) {
+    localStorage.setItem('doyds_users', JSON.stringify(users));
+    return true;
+}
+
+// 注册用户
+function registerUser(name, email, password) {
+    const users = getUsers();
+    
+    // 检查邮箱是否已存在
+    if (users.find(u => u.email === email)) {
+        throw new Error('该邮箱已被注册');
+    }
+    
+    const newUser = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        password: password,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`,
+        createdAt: Date.now()
+    };
+    
+    users.push(newUser);
+    saveUsers(users);
+    
+    // 返回不含密码的用户信息
+    const { password: _, ...userWithoutPassword } = newUser;
+    return Promise.resolve(userWithoutPassword);
+}
+
+// 登录用户
+function loginUser(email, password) {
+    const users = getUsers();
+    const user = users.find(u => u.email === email && u.password === password);
+    
+    if (!user) {
+        throw new Error('邮箱或密码错误');
+    }
+    
+    const { password: _, ...userWithoutPassword } = user;
+    return Promise.resolve(userWithoutPassword);
+}
+
+// ==================== 商品操作 ====================
+
+// 获取所有商品
+function getProducts() {
+    const products = localStorage.getItem('doyds_products');
+    return products ? JSON.parse(products) : [];
+}
+
+// 保存所有商品
+function saveProducts(products) {
+    localStorage.setItem('doyds_products', JSON.stringify(products));
+    return true;
+}
+
+// 添加商品
+function addProduct(product) {
+    const products = getProducts();
+    product.id = Date.now();
+    product.createdAt = Date.now();
+    products.unshift(product);
+    saveProducts(products);
+    return Promise.resolve(product);
+}
+
+// 删除商品
+function deleteProduct(productId) {
+    const products = getProducts();
+    const filtered = products.filter(p => p.id !== productId);
+    saveProducts(filtered);
+    return Promise.resolve(true);
+}
+
+// ==================== 订单操作 ====================
+
+// 获取所有订单
+function getOrders() {
+    const orders = localStorage.getItem('doyds_orders');
+    return orders ? JSON.parse(orders) : [];
+}
+
+// 保存所有订单
+function saveOrders(orders) {
+    localStorage.setItem('doyds_orders', JSON.stringify(orders));
+    return true;
+}
+
+// 添加订单
+function addOrder(order) {
+    const orders = getOrders();
+    order.id = Date.now();
+    order.createdAt = Date.now();
+    orders.unshift(order);
+    saveOrders(orders);
+    return Promise.resolve(order);
+}
+
+// 更新订单状态
+function updateOrderStatus(orderId, newStatus) {
+    const orders = getOrders();
+    const index = orders.findIndex(o => o.id === orderId);
+    if (index !== -1) {
+        orders[index].status = newStatus;
+        orders[index].updatedAt = Date.now();
+        saveOrders(orders);
+        return Promise.resolve(orders[index]);
+    }
+    return Promise.resolve(null);
+}
+
+// 初始化Bins（空函数，保持兼容）
+function initBins() {
+    return Promise.resolve();
+}
+
+// 加载商品（从后端加载）
+function loadProductsFromBackend() {
+    const products = getProducts();
+    return Promise.resolve(products);
+}
+
+console.log('后端服务已加载（本地存储模式）');
     
     if (!PRODUCTS_BIN_ID) {
         // 创建商品Bin

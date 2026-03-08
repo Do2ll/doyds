@@ -1208,10 +1208,9 @@
         // 页面初始化
         document.addEventListener('DOMContentLoaded', () => {
             // 初始化后端
-            initBins().then(() => {
-                // 从后端加载商品
-                loadProductsFromBackend();
-            });
+            initBins();
+            // 从后端加载商品
+            loadProductsFromBackend();
             
             // 加载本地存储的收藏
             try {
@@ -1226,8 +1225,8 @@
         });
 
         // 从后端加载商品
-        async function loadProductsFromBackend() {
-            products = await getProducts();
+        function loadProductsFromBackend() {
+            products = getProducts();
             renderProducts();
         }
 
@@ -1740,18 +1739,15 @@
 
             // 保存到后端
             showToast('正在发布...');
-            addProduct(newProduct).then(() => {
-                loadProductsFromBackend();
-                closePublishModal();
-                // 重置表单
-                document.getElementById('contactWechat').value = '';
-                document.getElementById('contactQQ').value = '';
-                document.getElementById('contactPhone').value = '';
-                document.getElementById('contactEmail').value = '';
-                showToast('商品发布成功！');
-            }).catch(err => {
-                showToast('发布失败: ' + err.message);
-            });
+            addProduct(newProduct);
+            loadProductsFromBackend();
+            closePublishModal();
+            // 重置表单
+            document.getElementById('contactWechat').value = '';
+            document.getElementById('contactQQ').value = '';
+            document.getElementById('contactPhone').value = '';
+            document.getElementById('contactEmail').value = '';
+            showToast('商品发布成功！');
         }
 
         // 联系卖家
@@ -2032,14 +2028,10 @@
             if (!confirm('确定要删除这个商品吗？')) return;
 
             // 调用后端API
-            (async () => {
-                const products = await getProducts();
-                const filtered = products.filter(p => p.id !== productId);
-                await saveProducts(filtered);
-                loadProductsFromBackend();
-                showMyProducts(); // 刷新列表
-                showToast('商品已删除');
-            })();
+            deleteProduct(productId);
+            loadProductsFromBackend();
+            showMyProducts(); // 刷新列表
+            showToast('商品已删除');
         }
 
         // 编辑商品
