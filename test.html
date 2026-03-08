@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOYDS - 测试页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-8">DOYDS 测试页面</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 测试1 -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">测试1: 登录弹窗</h2>
+                <button onclick="testLogin()" class="bg-blue-500 text-white px-4 py-2 rounded">
+                    点击测试登录
+                </button>
+            </div>
+
+            <!-- 测试2 -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">测试2: 注册弹窗</h2>
+                <button onclick="testRegister()" class="bg-green-500 text-white px-4 py-2 rounded">
+                    点击测试注册
+                </button>
+            </div>
+        </div>
+
+        <!-- 结果 -->
+        <div id="result" class="mt-8 bg-yellow-100 p-4 rounded-lg hidden">
+            <pre id="resultText"></pre>
+        </div>
+    </div>
+
+    <!-- 登录弹窗 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">登录</h2>
+            <form onsubmit="handleLogin(event)">
+                <input type="email" id="testEmail" placeholder="邮箱" class="w-full p-2 border rounded mb-4">
+                <input type="password" id="testPassword" placeholder="密码" class="w-full p-2 border rounded mb-4">
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">登录</button>
+            </form>
+            <button onclick="closeLogin()" class="mt-4 w-full bg-gray-300 text-black p-2 rounded">关闭</button>
+        </div>
+    </div>
+
+    <!-- 注册弹窗 -->
+    <div id="registerModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">注册</h2>
+            <form onsubmit="handleRegister(event)">
+                <input type="text" id="testName" placeholder="用户名" class="w-full p-2 border rounded mb-4">
+                <input type="email" id="regEmail" placeholder="邮箱" class="w-full p-2 border rounded mb-4">
+                <input type="password" id="regPassword" placeholder="密码" class="w-full p-2 border rounded mb-4">
+                <input type="password" id="regConfirmPassword" placeholder="确认密码" class="w-full p-2 border rounded mb-4">
+                <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">注册</button>
+            </form>
+            <button onclick="closeRegister()" class="mt-4 w-full bg-gray-300 text-black p-2 rounded">关闭</button>
+        </div>
+    </div>
+
+    <script src="js/backend.js"></script>
+    <script>
+        function testLogin() {
+            console.log('点击登录测试按钮');
+            document.getElementById('loginModal').classList.remove('hidden');
+            showResult('登录弹窗已打开');
+        }
+
+        function testRegister() {
+            console.log('点击注册测试按钮');
+            document.getElementById('registerModal').classList.remove('hidden');
+            showResult('注册弹窗已打开');
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').classList.add('hidden');
+            showResult('登录弹窗已关闭');
+        }
+
+        function closeRegister() {
+            document.getElementById('registerModal').classList.add('hidden');
+            showResult('注册弹窗已关闭');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            console.log('登录:', email, password);
+            
+            try {
+                const user = loginUser(email, password);
+                showResult('登录成功: ' + JSON.stringify(user));
+                closeLogin();
+            } catch (err) {
+                showResult('登录失败: ' + err.message);
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('testName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showResult('两次密码不一致');
+                return;
+            }
+            
+            try {
+                const user = registerUser(name, email, password);
+                showResult('注册成功: ' + JSON.stringify(user));
+                closeRegister();
+            } catch (err) {
+                showResult('注册失败: ' + err.message);
+            }
+        }
+
+        function showResult(text) {
+            const resultDiv = document.getElementById('result');
+            const resultText = document.getElementById('resultText');
+            resultDiv.classList.remove('hidden');
+            resultText.textContent = text;
+        }
+
+        console.log('测试页面已加载');
+    </script>
+</body>
+</html>
