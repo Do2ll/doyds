@@ -1752,23 +1752,6 @@
             document.getElementById('contactEmail').value = '';
             showToast('商品发布成功！');
         }
-                document.getElementById('contactQQ').value = '';
-                document.getElementById('contactPhone').value = '';
-                document.getElementById('contactEmail').value = '';
-            } catch (error) {
-                console.error('发布失败:', error);
-                showToast('发布失败: ' + error.message);
-            }
-        }
-            renderProducts();
-            closePublishModal();
-            // 重置表单
-            document.getElementById('contactWechat').value = '';
-            document.getElementById('contactQQ').value = '';
-            document.getElementById('contactPhone').value = '';
-            document.getElementById('contactEmail').value = '';
-            showToast('商品发布成功！');
-        }
 
         // 联系卖家
         let currentContactProduct = null;
